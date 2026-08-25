@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; img-src 'self' kp-img:"
+    />
+    <meta
+      http-equiv="X-Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; img-src 'self' kp-img:"
+    />
+    <title>ККС_КП-1 — Kaluga</title>
+    <link rel="stylesheet" href="../assets/style/styles.css" />
+    <link rel="stylesheet" href="../assets/style/kks-kp-1.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="header">
+        <div class="header__left">
+          <a class="header__back" href="../index.html" aria-label="Назад">←</a>
+          <h1 class="header__title">ККС_КП-1</h1>
+        </div>
+        <div class="header__right">
+          <button class="header__btn header__btn--save" id="save-btn" type="button">
+            <svg viewBox="0 0 16 16" aria-hidden="true">
+              <path
+                fill="currentColor"
+                d="M3 1.5h8.2L14.5 4.8V13a1.5 1.5 0 0 1-1.5 1.5H3A1.5 1.5 0 0 1 1.5 13V3A1.5 1.5 0 0 1 3 1.5Zm1.2 1.2v3.6h6.4V2.7H4.2Zm0 5.4V13h7.6V8.1H4.2Z"
+              />
+            </svg>
+            Сохранить
+          </button>
+          <button class="header__btn header__btn--print" id="print-btn" type="button">
+            <svg viewBox="0 0 16 16" aria-hidden="true">
+              <path
+                fill="currentColor"
+                d="M4.2 1.5h7.6A1.2 1.2 0 0 1 13 2.7V5H3V2.7A1.2 1.2 0 0 1 4.2 1.5ZM2.5 6h11A1.5 1.5 0 0 1 15 7.5v4.2a1.2 1.2 0 0 1-1.2 1.2H12v-2.4H4v2.4H2.2A1.2 1.2 0 0 1 1 11.7V7.5A1.5 1.5 0 0 1 2.5 6Zm1.7 7.2h7.6v1.3A1.2 1.2 0 0 1 10.6 15.7H5.4A1.2 1.2 0 0 1 4.2 14.5v-1.3ZM12 8.2a.8.8 0 1 0 0 1.6.8.8 0 0 0 0-1.6Z"
+              />
+            </svg>
+            Печать
+          </button>
+        </div>
+      </header>
+
+      <main class="workspace">
+
+        <div class="workspace__wrapper">
+          <section class="kp-form">
+            <div class="kp-form__toolbar">
+              <button class="header__btn header__btn--load" id="load-defaults-btn" type="button">
+                Загрузить базовые значения
+              </button>
+              <button class="header__btn header__btn--clear" id="clear-fields-btn" type="button">
+                Очистить все поля
+              </button>
+            </div>
+            <div class="kp-form__group">
+              <h2 class="kp-form__title">Название</h2>
+              <label class="kp-form__field">
+                <span>Название КП</span>
+                <input type="text" name="kp-name" />
+              </label>
+            </div>
+  
+            <div class="kp-form__group">
+              <h2 class="kp-form__title">Реквизиты</h2>
+              <label class="kp-form__field">
+                <span>Компания</span>
+                <input type="text" name="company" />
+              </label>
+              <label class="kp-form__field">
+                <span>ИНН / КПП</span>
+                <input type="text" name="inn-kpp" />
+              </label>
+              <label class="kp-form__field">
+                <span>ОКПО / ОГРН</span>
+                <input type="text" name="okpo-ogrn" />
+              </label>
+              <label class="kp-form__field">
+                <span>Адрес</span>
+                <input type="text" name="address" />
+              </label>
+            </div>
+  
+            <div class="kp-form__group">
+              <h2 class="kp-form__title">Контакты</h2>
+              <label class="kp-form__field">
+                <span>Телефон</span>
+                <input type="text" name="phone" />
+              </label>
+              <label class="kp-form__field">
+                <span>Email</span>
+                <input type="text" name="email" />
+              </label>
+            </div>
+  
+            <div class="kp-form__group">
+              <h2 class="kp-form__title">Товар</h2>
+              <label class="kp-form__field">
+                <span>Название</span>
+                <input type="text" name="product-title" />
+              </label>
+              <label class="kp-form__field">
+                <span>Подзаголовок</span>
+                <input type="text" name="product-sub" />
+              </label>
+            </div>
+  
+            <div class="kp-form__group">
+              <h2 class="kp-form__title">Менеджер</h2>
+              <label class="kp-form__field">
+                <span>Имя</span>
+                <input type="text" name="manager-name" />
+              </label>
+              <label class="kp-form__field">
+                <span>Фото</span>
+                <input type="file" name="manager-photo" accept="image/*" />
+                <span class="kp-form__file-name" data-file-name="manager-photo"></span>
+              </label>
+            </div>
+  
+            <div class="kp-form__group">
+              <h2 class="kp-form__title">Документ</h2>
+              <label class="kp-form__field">
+                <span>Номер</span>
+                <input type="text" name="doc-number" />
+              </label>
+              <label class="kp-form__field">
+                <span>Дата</span>
+                <input type="text" name="doc-date" />
+              </label>
+              <label class="kp-form__field">
+                <span>Клиент</span>
+                <input type="text" name="doc-client" />
+              </label>
+            </div>
+  
+            <div class="kp-form__group">
+              <h2 class="kp-form__title">Таблица</h2>
+              <div class="kp-form__rows" id="table-rows">
+                <div class="kp-form__row">
+                  <label class="kp-form__field">
+                    <span>Наименование</span>
+                    <input type="text" name="item-name" />
+                  </label>
+                  <label class="kp-form__field">
+                    <span>Ед. изм.</span>
+                    <input type="text" name="item-unit" />
+                  </label>
+                  <label class="kp-form__field">
+                    <span>Кол-во</span>
+                    <input class="js-num" type="text" inputmode="numeric" name="item-qty" />
+                  </label>
+                  <label class="kp-form__field">
+                    <span>Цена за ед.</span>
+                    <input class="js-num" type="text" inputmode="decimal" name="item-price" />
+                  </label>
+                  <label class="kp-form__field">
+                    <span>Цена итого</span>
+                    <span class="kp-form__computed" data-item-sum></span>
+                  </label>
+                  <button class="kp-form__remove" type="button" aria-label="Удалить строку">×</button>
+                </div>
+              </div>
+              <button class="kp-form__add" id="add-row-btn" type="button">Добавить поле</button>
+            </div>
+  
+            <div class="kp-form__group">
+              <h2 class="kp-form__title">Итого</h2>
+              <label class="kp-form__field">
+                <span>Сумма</span>
+                <input class="js-num" type="text" inputmode="decimal" name="total" />
+              </label>
+            </div>
+  
+            <div class="kp-form__group">
+              <h2 class="kp-form__title">Примечание</h2>
+              <label class="kp-form__field">
+                <span>Текст</span>
+                <textarea name="note"></textarea>
+              </label>
+            </div>
+  
+            <div class="kp-form__group">
+              <h2 class="kp-form__title">Условия</h2>
+              <div class="kp-form__rows" id="term-rows">
+                <div class="kp-form__row kp-form__row--term">
+                  <label class="kp-form__field">
+                    <span>Название</span>
+                    <input type="text" name="term-label" />
+                  </label>
+                  <label class="kp-form__field">
+                    <span>Значение</span>
+                    <input type="text" name="term-value" />
+                  </label>
+                  <button class="kp-form__remove" type="button" aria-label="Удалить строку">×</button>
+                </div>
+              </div>
+              <button class="kp-form__add" id="add-term-btn" type="button">Добавить поле</button>
+            </div>
+  
+            <div class="kp-form__group">
+              <h2 class="kp-form__title">Подвал</h2>
+              <label class="kp-form__field">
+                <span>Отдел продаж</span>
+                <input type="text" name="footer-banner" />
+              </label>
+              <label class="kp-form__field">
+                <span>Тел/факс</span>
+                <input type="text" name="footer-phone" />
+              </label>
+              <label class="kp-form__field">
+                <span>Почта и сайт</span>
+                <input type="text" name="footer-contacts" />
+              </label>
+              <label class="kp-form__field">
+                <span>Должность</span>
+                <input type="text" name="sign-role" />
+              </label>
+              <label class="kp-form__field">
+                <span>ФИО</span>
+                <input type="text" name="sign-name" />
+              </label>
+            </div>
+          </section>
+  
+          <article class="kp">
+            <div class="kp__deco-top" aria-hidden="true">
+              <svg class="kp__deco-top-svg" width="487" height="25" viewBox="0 0 487 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M16.2469 20.3087C18.6191 23.2739 22.2105 25 26.0078 25H288.5V0H0L16.2469 20.3087Z" fill="#50563A"/>
+                <rect x="288" width="199" height="25" fill="#50563A"/>
+              </svg> 
+              
+              <svg class="kp__deco-top-svg-2" width="49" height="49" viewBox="0 0 49 49" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M-4.90642e-05 24.0293L24.4838 0.00136445L48.593 25.6837L32.0075 44.9361C28.4402 49.077 22.0355 49.1084 18.4279 45.0024L-4.90642e-05 24.0293Z" fill="#C8A883"/>
+                </svg>
+                
+            </div>
+  
+            <header class="kp-head">
+              <img
+                class="kp-head__logo"
+                src="images/logo-v1.png"
+                alt="Калужские конвейерные системы"
+              />
+              <div class="kp-head__info">
+                <p data-kp="company"></p>
+                <p data-kp="inn-kpp"></p>
+                <p data-kp="okpo-ogrn"></p>
+                <p data-kp="address"></p>
+              </div>
+            </header>
+  
+            <div class="kp-rule" aria-hidden="true">
+              <svg class="kp-rule__svg-1" width="829" height="31" viewBox="0 0 829 31" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M-28 0.5H412.601C417.288 0.5 421.789 2.32759 425.149 5.59433L445.526 25.4057C448.886 28.6724 453.387 30.5 458.073 30.5H829" stroke="#853A3E"/>
+              </svg>
+              
+              <svg class="kp-rule__svg-2" width="451" height="33" viewBox="0 0 451 33" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M423.703 3.94155C421.34 1.42649 418.043 0 414.592 0H158.5V33H451L423.703 3.94155Z" fill="#50563A"/>
+                <rect x="159" y="33" width="199" height="33" transform="rotate(-180 159 33)" fill="#50563A"/>
+              </svg>
+                
+                
+            </div>
+  
+            <section class="kp-hero">
+              
+  
+              <div class="kp-hero__banners">
+                
+                <p class="kp-hero__title">
+  
+                  <svg class="kp-hero__title-svg" width="459" height="69" viewBox="0 0 459 69" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M0 25C0 11.1929 11.1929 0 25 0H438.478C442.928 0 447.248 1.49629 450.745 4.24832C457.703 9.72466 460.188 19.1498 456.835 27.3451L439.793 69H25C11.1929 69 0 57.8071 0 44V25Z" fill="#853A3E"/>
+                  </svg>
+                                      
+                  <span class="kp-hero__title-text" data-kp="product-title"></span>
+                </p>
+                <p class="kp-hero__sub">
+                  <svg class="kp-hero__sub-svg" width="305" height="56" viewBox="0 0 305 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M0 0H305L286.862 39.833C282.381 49.6737 272.549 55.9751 261.736 55.9364L0 55V0Z" fill="#50563A"/>
+                    </svg>
+  
+                  <span class="kp-hero__sub-text" data-kp="product-sub"></span>
+                </p>
+  
+                <img
+                  class="kp-hero__prod"
+                  src="images/prod-v1.png"
+                  alt="Ролик конвейерный"
+                />
+              </div>
+  
+              <div class="kp-hero__aside">
+                <p class="kp-hero__phones" data-kp="phone"></p>
+                <p class="kp-hero__web" data-kp="email"></p>
+  
+                <div class="kp-manager">
+                  <svg class="kp-manager__svg" width="483" height="70" viewBox="0 0 483 70" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M2.03205 43.7789L20.9863 0.5H481.986V69H18.5201C5.53642 69 -3.17662 55.6721 2.03205 43.7789Z" stroke="#853A3E"/>
+                  </svg>
+                    
+                  <p class="kp-manager__text">
+                    Ваш персональный менеджер:<br />
+                    <strong data-kp="manager-name"></strong>
+                  </p>
+                  <span class="kp-manager__photo" aria-hidden="true"></span>
+                </div>
+  
+                <div class="kp-meta">
+                  <p data-kp="doc-number"></p>
+                  <p data-kp="doc-date"></p>
+                  <p data-kp="doc-client"></p>
+                </div>
+              </div>
+            </section>
+  
+            <section class="kp-table">
+              <div class="kp-table__wrap">
+                <div class="kp-table__head">
+                  <div>№</div>
+                  <div class="kp-table__name-h">Наименование товара</div>
+                  <div>Ед.<br />изм.</div>
+                  <div>Кол<br />-во</div>
+                  <div>Цена за ед.<br />с НДС (руб.)</div>
+                  <div>ЦЕНА ИТОГО<br />с НДС (руб.)</div>
+                </div>
+              </div>
+  
+              <div class="kp-total">
+                <span class="kp-total__label">Итого</span>
+                <span class="kp-total__value" data-kp="total"></span>
+              </div>
+            </section>
+  
+            <div class="kp-note" data-kp="note"></div>
+  
+            <section class="kp-terms"></section>
+  
+            <footer class="kp-foot">
+              <p class="kp-foot__banner" data-kp="footer-banner"></p>
+              <div class="kp-foot__contacts">
+                <div data-kp="footer-phone"></div>
+                <div data-kp="footer-contacts"></div>
+              </div>
+              <div class="kp-sign">
+                <span data-kp="sign-role"></span>
+                <span data-kp="sign-name"></span>
+              </div>
+            </footer>
+  
+            <div class="kp__deco-bottom" aria-hidden="true"></div>
+          </article>
+        </div>
+        
+      </main>
+    </div>
+    <script type="module" src="../assets/js/kks-kp-1.js"></script>
+  </body>
+</html>
