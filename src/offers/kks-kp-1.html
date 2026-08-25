@@ -4,11 +4,11 @@
     <meta charset="UTF-8" />
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self'; img-src 'self' kp-img:"
+      content="default-src 'self'; script-src 'self'; img-src 'self' kp-img:; worker-src 'self' blob:; frame-src 'self'"
     />
     <meta
       http-equiv="X-Content-Security-Policy"
-      content="default-src 'self'; script-src 'self'; img-src 'self' kp-img:"
+      content="default-src 'self'; script-src 'self'; img-src 'self' kp-img:; worker-src 'self' blob:; frame-src 'self'"
     />
     <title>ККС_КП-1 — Kaluga</title>
     <link rel="stylesheet" href="../assets/style/styles.css" />
@@ -225,6 +225,7 @@
             </div>
           </section>
   
+          <div class="kp-pages">
           <article class="kp">
             <div class="kp__deco-top" aria-hidden="true">
               <svg class="kp__deco-top-svg" width="487" height="25" viewBox="0 0 487 25" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -265,6 +266,7 @@
                 
             </div>
   
+            <div class="kp-body">
             <section class="kp-hero">
               
   
@@ -330,14 +332,16 @@
               </div>
   
               <div class="kp-total">
-                <span class="kp-total__label">Итого</span>
+                <span class="kp-total__label">ИТОГО (с НДС)</span>
                 <span class="kp-total__value" data-kp="total"></span>
               </div>
             </section>
   
-            <div class="kp-note" data-kp="note"></div>
-  
-            <section class="kp-terms"></section>
+            <div class="kp-after">
+              <div class="kp-note" data-kp="note"></div>
+              <section class="kp-terms"></section>
+            </div>
+            </div>
   
             <footer class="kp-foot">
               <p class="kp-foot__banner" data-kp="footer-banner"></p>
@@ -353,6 +357,10 @@
   
             <div class="kp__deco-bottom" aria-hidden="true"></div>
           </article>
+          <article class="kp-insert" aria-label="Рекламный буклет">
+            <canvas class="kp-insert__canvas"></canvas>
+          </article>
+          </div>
         </div>
         
       </main>

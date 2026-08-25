@@ -4,14 +4,38 @@
   flex-wrap: wrap;
   align-items: flex-start;
 }
+
+.kp-pages {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.kp-body {
+  flex: 1 1 0;
+  min-height: 0;
+  /* overflow: hidden; */
+}
+
+.kp--continued .kp-hero,
+.kp--continued .kp-head,
+.kp--continued .kp-rule {
+  display: none;
+}
+
 .kp {
   position: relative;
+  display: flex;
+  flex-direction: column;
   width: 210mm;
+  height: 297mm;
   min-height: 297mm;
+  max-height: 297mm;
   margin: 0 auto;
   padding: 9mm 12mm 10mm;
   padding-left: 33px;
   padding-right: 21px;
+  padding-bottom: 12mm;
   overflow: hidden;
   background: #fff;
   color: #1a1a1a;
@@ -22,6 +46,10 @@
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
   -webkit-print-color-adjust: exact;
   print-color-adjust: exact;
+}
+
+.kp.kp--continued {
+  padding-top: 13mm;
 }
 
 .kp * {
@@ -340,8 +368,14 @@ position: relative;
 }
 
 .kp-table__row > div:first-child,
-.kp-table__row > div:nth-child(n + 3) {
+.kp-table__row > div:nth-child(3),
+.kp-table__row > div:nth-child(4) {
   font-weight: 600;
+}
+
+.kp-table__row > div:nth-child(5),
+.kp-table__row > div:nth-child(6) {
+  font-weight: 400;
 }
 
 .kp-table__name {
@@ -351,7 +385,7 @@ position: relative;
   font-weight: 400 !important;
 }
 
-.kp-table__row:nth-child(even of .kp-table__row) {
+.kp-table__row--alt {
   background: #dcc4c6;
   border-radius: 0 15px 0 15px;
   overflow: hidden;
@@ -372,15 +406,15 @@ position: relative;
   justify-content: center;
   min-width: 120px;
   height: 32px;
-  padding: 0 10px;
+  padding: 0 12px;
   box-sizing: border-box;
+  white-space: nowrap;
 }
 
 .kp-total__label {
   color: #fff;
   font-size: 13px;
   font-weight: 700;
-  text-transform: uppercase;
   border-bottom-left-radius: 10px;
   background: #944243;
 }
@@ -392,8 +426,13 @@ position: relative;
   justify-content: center;
   align-items: center;
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 700;
   color: #1a1a1a;
+}
+
+.kp-after {
+  break-inside: avoid;
+  page-break-inside: avoid;
 }
 
 .kp-note {
@@ -452,12 +491,11 @@ position: relative;
 }
 
 .kp-foot {
- position: absolute;
- bottom: 30px;
- left: 33px;
- width: calc(100% - 54px);
- padding-bottom: 10px;
-
+  position: relative;
+  flex-shrink: 0;
+  width: 100%;
+  margin-top: auto;
+  padding-bottom: 10px;
 }
 
 .kp-foot__banner {
@@ -525,4 +563,45 @@ position: relative;
 
 .kp [hidden] {
   display: none !important;
+}
+
+.kp-insert {
+  position: relative;
+  width: 210mm;
+  height: 297mm;
+  min-height: 297mm;
+  max-height: 297mm;
+  margin: 0 auto;
+  padding: 0;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.kp-insert__canvas,
+.kp-insert__pdf {
+  display: block;
+  width: 210mm;
+  height: 297mm;
+  border: 0;
+}
+
+@media print {
+  .kp-pages {
+    gap: 0;
+  }
+
+  .kp,
+  .kp-insert {
+    box-shadow: none;
+    break-after: page;
+    page-break-after: always;
+  }
+
+  .kp-pages > :last-child {
+    break-after: auto;
+    page-break-after: auto;
+  }
 }

@@ -573,12 +573,22 @@ a.card:hover {
     background: #fff;
   }
 
+  .workspace__wrapper {
+    display: block;
+  }
+
+  .kp-pages {
+    gap: 0;
+  }
+
   .app {
     height: auto;
   }
 
   .kp,
-  .kp * {
+  .kp *,
+  .kp-insert,
+  .kp-insert * {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }

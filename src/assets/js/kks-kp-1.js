@@ -1,5 +1,11 @@
 import { KpDatabase, KpDefaults } from '../../backend/db.js'
 import { KP_SEED } from '../../backend/kp-seed.js'
+import { getDocument, GlobalWorkerOptions } from '../vendor/pdfjs/pdf.min.mjs'
+
+GlobalWorkerOptions.workerSrc = new URL(
+  '../vendor/pdfjs/pdf.worker.min.mjs',
+  import.meta.url
+).href
 
 const KP_TYPE = 'kks-kp-1'
 
@@ -278,7 +284,7 @@ const renderManagerPhoto = () => {
 }
 
 const renderTablePreview = () => {
-  const wrap = document.querySelector('.kp-table__wrap')
+  const wrap = document.querySelector('.kp-pages > .kp:not(.kp--clone) .kp-table__wrap')
   const count = Number(kpData['item-count']) || 0
   let shown = 0
 
@@ -297,13 +303,13 @@ const renderTablePreview = () => {
 
     shown += 1
     const row = document.createElement('div')
-    row.className = 'kp-table__row'
+    row.className = shown % 2 === 0 ? 'kp-table__row kp-table__row--alt' : 'kp-table__row'
     row.innerHTML = `
       <div>${shown}</div>
       <div class="kp-table__name">${escapeHtml(name)}</div>
       <div>${escapeHtml(unit)}</div>
       <div>${escapeHtml(qty)}</div>
-      <div>${escapeHtml(price)}</div>
+      <div>${escapeHtml(hasValue(price) ? formatRowSum(parseMoney(price)) : '')}</div>
       <div>${escapeHtml(sum)}</div>
     `
     wrap?.append(row)
@@ -325,7 +331,7 @@ const renderTablePreview = () => {
 }
 
 const renderTermsPreview = () => {
-  const list = document.querySelector('.kp-terms')
+  const list = document.querySelector('.kp-pages > .kp:not(.kp--clone) .kp-terms')
 
   if (!list) {
     return
@@ -358,7 +364,223 @@ const renderTermsPreview = () => {
   setHidden(list, shown === 0)
 }
 
+const pageBody = (page) => page.querySelector('.kp-body')
+
+const getFirstKpPage = () => document.querySelector('.kp-pages > .kp:not(.kp--clone)')
+
+const resetKpPages = () => {
+  const first = getFirstKpPage()
+
+  if (!first) {
+    return first
+  }
+
+  const wrap = first.querySelector('.kp-table__wrap')
+  const table = first.querySelector('.kp-table')
+  const body = pageBody(first)
+
+  document.querySelectorAll('.kp--clone').forEach((clone) => {
+    clone.querySelectorAll('.kp-table__row').forEach((row) => {
+      wrap?.append(row)
+    })
+
+    const total = clone.querySelector('.kp-total')
+
+    if (total) {
+      if (first.querySelector('.kp-total')) {
+        total.remove()
+      } else {
+        table?.append(total)
+      }
+    }
+
+    const after = clone.querySelector('.kp-after')
+
+    if (after) {
+      if (first.querySelector('.kp-after')) {
+        after.remove()
+      } else {
+        body?.append(after)
+      }
+    }
+
+    clone.remove()
+  })
+
+  return first
+}
+
+const pageOverflows = (page) => {
+  const body = pageBody(page)
+
+  if (!body) {
+    return false
+  }
+
+  void page.offsetHeight
+
+  return body.scrollHeight > body.clientHeight + 1
+}
+
+const lastMovablePiece = (page) => {
+  const after = page.querySelector('.kp-after')
+
+  if (after && !after.hidden) {
+    const note = after.querySelector('.kp-note')
+    const hasNote = Boolean(note && !note.hidden)
+    const hasTerms = Boolean(after.querySelector('.kp-term'))
+
+    if (hasNote || hasTerms) {
+      return after
+    }
+  }
+
+  const total = page.querySelector('.kp-total')
+
+  if (total) {
+    return total
+  }
+
+  const rows = [...page.querySelectorAll('.kp-table__row')]
+
+  return rows.at(-1) ?? null
+}
+
+const placePieceOnPage = (page, piece) => {
+  if (piece.classList.contains('kp-table__row')) {
+    const table = page.querySelector('.kp-table')
+    const wrap = page.querySelector('.kp-table__wrap')
+    const firstRow = wrap?.querySelector('.kp-table__row')
+
+    setHidden(table, false)
+
+    if (firstRow) {
+      wrap.insertBefore(piece, firstRow)
+    } else {
+      wrap?.append(piece)
+    }
+
+    return
+  }
+
+  if (piece.classList.contains('kp-total')) {
+    const table = page.querySelector('.kp-table')
+    setHidden(table, false)
+    table?.append(piece)
+    return
+  }
+
+  if (piece.classList.contains('kp-after')) {
+    pageBody(page)?.append(piece)
+  }
+}
+
+const makeContinuedPage = (source) => {
+  const page = source.cloneNode(true)
+
+  page.classList.add('kp--clone', 'kp--continued')
+  page.querySelectorAll('.kp-table__row').forEach((row) => row.remove())
+  page.querySelector('.kp-total')?.remove()
+  page.querySelector('.kp-after')?.remove()
+
+  return page
+}
+
+const finishKpPages = () => {
+  const pages = [...document.querySelectorAll('.kp-pages .kp')]
+
+  pages.forEach((page, index) => {
+    const isLast = index === pages.length - 1
+    const table = page.querySelector('.kp-table')
+    const after = page.querySelector('.kp-after')
+    const terms = page.querySelector('.kp-terms')
+    const hasRows = Boolean(page.querySelector('.kp-table__row'))
+    const hasTotal = Boolean(page.querySelector('.kp-total'))
+    const hasTerms = Boolean(page.querySelector('.kp-term'))
+    const note = page.querySelector('.kp-note')
+    const hasNote = Boolean(note && !note.hidden)
+
+    setHidden(table, page.classList.contains('kp--continued') && !hasRows && !hasTotal)
+    setHidden(terms, !hasTerms)
+    setHidden(after, !hasNote && !hasTerms)
+
+    const sign = page.querySelector('.kp-sign')
+
+    if (sign) {
+      setHidden(
+        sign,
+        !isLast ||
+          !['sign-role', 'sign-name'].some((key) => hasValue(kpData[key]))
+      )
+    }
+  })
+}
+
+const layoutKpPages = () => {
+  const first = resetKpPages()
+
+  if (!first) {
+    return
+  }
+
+  let current = first
+  let guard = 0
+
+  while (guard < 30) {
+    guard += 1
+
+    if (!pageOverflows(current)) {
+      const next = current.nextElementSibling
+
+      if (next?.classList.contains('kp--clone') && pageOverflows(next)) {
+        current = next
+        continue
+      }
+
+      break
+    }
+
+    let next = current.nextElementSibling
+
+    if (!next?.classList.contains('kp--clone')) {
+      next = makeContinuedPage(first)
+      current.after(next)
+    }
+
+    const piece = lastMovablePiece(current)
+
+    if (!piece) {
+      break
+    }
+
+    placePieceOnPage(next, piece)
+
+    const nextPieces = next.querySelectorAll('.kp-table__row, .kp-total, .kp-after')
+
+    if (pageOverflows(next) && nextPieces.length <= 1) {
+      break
+    }
+  }
+
+  finishKpPages()
+}
+
+let layoutFrame = 0
+
+const scheduleKpLayout = () => {
+  layoutFrame += 1
+  const frame = layoutFrame
+
+  requestAnimationFrame(() => {
+    if (frame === layoutFrame) {
+      layoutKpPages()
+    }
+  })
+}
+
 const renderPreview = () => {
+  resetKpPages()
+
   const title = document.querySelector('.header__title')
 
   if (title) {
@@ -412,6 +634,7 @@ const renderPreview = () => {
 
   renderTablePreview()
   renderTermsPreview()
+  scheduleKpLayout()
 }
 
 const syncKpData = () => {
@@ -592,6 +815,43 @@ document.getElementById('save-btn')?.addEventListener('click', async () => {
   }
 })
 
+const renderInsertPdf = async () => {
+  const canvas = document.querySelector('.kp-insert__canvas')
+
+  if (!canvas) {
+    return
+  }
+
+  try {
+    const pdf = await getDocument({
+      url: new URL('../pdf/add-v1.pdf', import.meta.url).href,
+      verbosity: 0
+    }).promise
+    const page = await pdf.getPage(1)
+    const base = page.getViewport({ scale: 1 })
+    const scale = ((210 / 25.4) * 220) / base.width
+    const viewport = page.getViewport({ scale })
+    const context = canvas.getContext('2d')
+
+    canvas.width = viewport.width
+    canvas.height = viewport.height
+
+    await page.render({
+      canvas,
+      canvasContext: context,
+      viewport
+    }).promise
+  } catch (error) {
+    console.error('Не удалось отрисовать буклет', error)
+
+    const frame = document.createElement('iframe')
+    frame.className = 'kp-insert__pdf'
+    frame.title = 'Рекламный буклет'
+    frame.src = `${new URL('../pdf/add-v1.pdf', import.meta.url).href}#toolbar=0&navpanes=0&scrollbar=0`
+    canvas.replaceWith(frame)
+  }
+}
+
 const boot = async () => {
   const id = getQueryParams().get('id')
 
@@ -600,11 +860,13 @@ const boot = async () => {
 
     if (record?.data) {
       applyKpData(record.data)
+      await renderInsertPdf()
       return
     }
   }
 
   syncKpData()
+  await renderInsertPdf()
 }
 
 boot()
