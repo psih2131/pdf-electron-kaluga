@@ -207,9 +207,14 @@ const setupAutoUpdater = () => {
   }
 
   autoUpdater.autoDownload = true
+  autoUpdater.logger = console
 
   autoUpdater.on('update-available', () => {
     console.log('[updater] Доступно обновление')
+  })
+
+  autoUpdater.on('update-not-available', () => {
+    console.log('[updater] Установлена актуальная версия')
   })
 
   autoUpdater.on('download-progress', (progress) => {
@@ -234,6 +239,15 @@ const setupAutoUpdater = () => {
 
   autoUpdater.on('error', (error) => {
     console.error('[updater]', error)
+
+    const win = BrowserWindow.getFocusedWindow() ?? BrowserWindow.getAllWindows()[0]
+
+    dialog.showMessageBox(win, {
+      type: 'error',
+      title: 'Обновление Kaluga',
+      message: 'Не удалось проверить обновления',
+      detail: String(error?.message ?? error)
+    })
   })
 
   autoUpdater.checkForUpdates()

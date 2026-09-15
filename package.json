@@ -1,6 +1,6 @@
 {
   "name": "kaluga",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "",
   "license": "ISC",
   "author": "",
@@ -10,20 +10,20 @@
     "start": "electron .",
     "dist": "electron-builder --win nsis",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dist:publish": "electron-builder --win nsis --publish always"
+    "dist:publish": "dotenv -e .env -- electron-builder --win nsis --publish always"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/psih2131/pdf-electron-kaluga.git"
   },
-
   "build": {
     "appId": "com.kaluga.app",
     "productName": "Kaluga",
     "publish": {
       "provider": "github",
       "owner": "psih2131",
-      "repo": "pdf-electron-kaluga"
+      "repo": "pdf-electron-kaluga",
+      "private": true
     },
     "files": [
       "main.js",
@@ -43,6 +43,7 @@
     }
   },
   "devDependencies": {
+    "dotenv-cli": "^8.0.0",
     "electron": "^43.4.0",
     "electron-builder": "^26.15.3"
   },
