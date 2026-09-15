@@ -74,6 +74,10 @@ dist
 # Electron build output
 release/
 
+# Generated KP PDFs
+files/
+uploads/
+
 # vuepress build output
 .vuepress/dist
 

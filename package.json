@@ -9,11 +9,22 @@
   "scripts": {
     "start": "electron .",
     "dist": "electron-builder --win nsis",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dist:publish": "electron-builder --win nsis --publish always"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/psih2131/pdf-electron-kaluga.git"
+  },
+
   "build": {
     "appId": "com.kaluga.app",
     "productName": "Kaluga",
+    "publish": {
+      "provider": "github",
+      "owner": "psih2131",
+      "repo": "pdf-electron-kaluga"
+    },
     "files": [
       "main.js",
       "preload.cjs",
@@ -34,5 +45,8 @@
   "devDependencies": {
     "electron": "^43.4.0",
     "electron-builder": "^26.15.3"
+  },
+  "dependencies": {
+    "electron-updater": "^6.8.9"
   }
 }

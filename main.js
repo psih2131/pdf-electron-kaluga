@@ -1,9 +1,12 @@
-import { app, BrowserWindow, ipcMain, protocol } from 'electron'
+import { app, BrowserWindow, dialog, ipcMain, protocol } from 'electron'
 import { watch } from 'node:fs'
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import { randomBytes } from 'node:crypto'
 import { fileURLToPath } from 'node:url'
+import electronUpdater from 'electron-updater'
+
+const { autoUpdater } = electronUpdater
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -13,6 +16,36 @@ const getUploadsDir = () => {
   }
 
   return path.join(__dirname, 'uploads')
+}
+
+const getPdfDir = () => {
+  if (app.isPackaged) {
+    return path.join(app.getPath('userData'), 'files')
+  }
+
+  return path.join(__dirname, 'files')
+}
+
+const sanitizeDocumentId = (id) => {
+  const safeId = String(id ?? '').replace(/[^\w-]/g, '')
+
+  if (!safeId) {
+    throw new Error('Invalid document id')
+  }
+
+  return safeId
+}
+
+const getPdfFilePath = (id) => {
+  const safeId = sanitizeDocumentId(id)
+
+  return path.join(getPdfDir(), `${safeId}.pdf`)
+}
+
+const sanitizeFileName = (name) => {
+  const trimmed = String(name ?? '').trim().replace(/[<>:"/\\|?*\u0000-\u001F]/g, '')
+
+  return trimmed.slice(0, 120)
 }
 
 protocol.registerSchemesAsPrivileged([
@@ -76,6 +109,87 @@ ipcMain.on('print-kp', (event) => {
   })
 })
 
+ipcMain.handle('save-pdf', async (event, id) => {
+  const win = BrowserWindow.fromWebContents(event.sender)
+
+  if (!win) {
+    throw new Error('Window not found')
+  }
+
+  const safeId = sanitizeDocumentId(id)
+  const pdf = await win.webContents.printToPDF({
+    printBackground: true,
+    pageSize: 'A4'
+  })
+
+  const dir = getPdfDir()
+  const fileName = `${safeId}.pdf`
+  const filePath = path.join(dir, fileName)
+
+  await fs.mkdir(dir, { recursive: true })
+  await fs.writeFile(filePath, pdf)
+
+  return fileName
+})
+
+ipcMain.handle('pdf-exists', async (_event, id) => {
+  try {
+    await fs.access(getPdfFilePath(id))
+    return true
+  } catch (error) {
+    if (error?.code === 'ENOENT') {
+      return false
+    }
+
+    throw error
+  }
+})
+
+ipcMain.handle('delete-pdf', async (_event, id) => {
+  try {
+    await fs.unlink(getPdfFilePath(id))
+    return true
+  } catch (error) {
+    if (error?.code === 'ENOENT') {
+      return false
+    }
+
+    throw error
+  }
+})
+
+ipcMain.handle('download-pdf', async (event, payload) => {
+  const id = payload?.id
+  const sourcePath = getPdfFilePath(id)
+
+  try {
+    await fs.access(sourcePath)
+  } catch (error) {
+    if (error?.code === 'ENOENT') {
+      throw new Error('PDF not found')
+    }
+
+    throw error
+  }
+
+  const win = BrowserWindow.fromWebContents(event.sender)
+  const safeId = sanitizeDocumentId(id)
+  const baseName = sanitizeFileName(payload?.defaultName) || safeId
+  const defaultPath = baseName.toLowerCase().endsWith('.pdf') ? baseName : `${baseName}.pdf`
+  const { canceled, filePath } = await dialog.showSaveDialog(win, {
+    defaultPath,
+    filters: [{ name: 'PDF', extensions: ['pdf'] }]
+  })
+
+  if (canceled || !filePath) {
+    return false
+  }
+
+  await fs.copyFile(sourcePath, filePath)
+
+  return true
+})
+
 ipcMain.handle('save-image', async (_event, payload) => {
   const ext = normalizeExt(payload?.ext, payload?.mime)
   const name = randomImageName(ext)
@@ -86,6 +200,44 @@ ipcMain.handle('save-image', async (_event, payload) => {
 
   return name
 })
+
+const setupAutoUpdater = () => {
+  if (!app.isPackaged) {
+    return
+  }
+
+  autoUpdater.autoDownload = true
+
+  autoUpdater.on('update-available', () => {
+    console.log('[updater] Доступно обновление')
+  })
+
+  autoUpdater.on('download-progress', (progress) => {
+    console.log('[updater]', `${Math.round(progress.percent)}%`)
+  })
+
+  autoUpdater.on('update-downloaded', async () => {
+    const win = BrowserWindow.getFocusedWindow() ?? BrowserWindow.getAllWindows()[0]
+    const { response } = await dialog.showMessageBox(win, {
+      type: 'info',
+      title: 'Обновление Kaluga',
+      message: 'Обновление скачано. Перезапустить приложение?',
+      buttons: ['Перезапустить', 'Позже'],
+      defaultId: 0,
+      cancelId: 1
+    })
+
+    if (response === 0) {
+      autoUpdater.quitAndInstall()
+    }
+  })
+
+  autoUpdater.on('error', (error) => {
+    console.error('[updater]', error)
+  })
+
+  autoUpdater.checkForUpdates()
+}
 
 const createWindow = () => {
   const win = new BrowserWindow({
@@ -186,6 +338,7 @@ app.whenReady().then(() => {
   })
 
   createWindow()
+  setupAutoUpdater()
   watchDevFiles()
 })
 
