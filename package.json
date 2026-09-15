@@ -1,6 +1,6 @@
 {
   "name": "kaluga",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "",
   "license": "ISC",
   "author": "",
@@ -23,7 +23,7 @@
       "provider": "github",
       "owner": "psih2131",
       "repo": "pdf-electron-kaluga",
-      "private": true
+      "releaseType": "release"
     },
     "files": [
       "main.js",

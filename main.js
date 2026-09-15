@@ -241,12 +241,13 @@ const setupAutoUpdater = () => {
     console.error('[updater]', error)
 
     const win = BrowserWindow.getFocusedWindow() ?? BrowserWindow.getAllWindows()[0]
+    const detail = String(error?.message ?? error).split('\n')[0]
 
     dialog.showMessageBox(win, {
       type: 'error',
       title: 'Обновление Kaluga',
       message: 'Не удалось проверить обновления',
-      detail: String(error?.message ?? error)
+      detail
     })
   })
 
