@@ -1,6 +1,6 @@
 {
   "name": "kaluga",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "",
   "license": "ISC",
   "author": "",
@@ -36,7 +36,8 @@
       "output": "dist"
     },
     "win": {
-      "target": "nsis"
+      "target": "nsis",
+      "signAndEditExecutable": false
     },
     "nsis": {
       "oneClick": false,
