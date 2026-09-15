@@ -1,0 +1,121 @@
+:root {
+  --main-color: #E48E45;
+  --secondary-color: #F7ECC4;
+  --text-dark: #2B2B2B;
+  --table-text-dark: #2B2B2B;
+}
+
+.kp,
+.kp-head__info,
+.kp-manager__text,
+.kp-meta p,
+.kp-total__value,
+.kp-note,
+.kp-foot__contacts,
+.kp-sign,
+.kp-term__value-inner,
+.kp-hero__sub-text,
+.kp-hero__offer-heading {
+  color: var(--text-dark);
+}
+
+.kp-table__row--alt,
+.kp-table__row--alt > div,
+.kp-table__row--alt .kp-table__name {
+  color: var(--text-dark);
+}
+.kp-table__row {
+background: var(--main-color);
+
+}
+
+.kp-hero__title-svg path{
+    fill: var(--main-color);
+}
+
+.kp__deco-top-svg-2 path{
+    fill: var(--main-color);
+}
+
+.kp__deco-top-svg path{
+    fill: var(--secondary-color);
+}
+
+.kp-rule__svg-2 path{
+    fill: var(--secondary-color);
+}
+
+.kp-rule__svg-2 rect{
+    fill: var(--secondary-color);
+}
+
+.kp-hero__sub-svg path{
+    fill: var(--secondary-color);
+}
+.kp-rule__svg-1 path{
+    stroke: var(--main-color);
+}
+.kp-manager__svg path{
+    stroke: var(--main-color);
+}
+
+.kp-table__head > div{
+    color: #fff;
+}
+.kp-table__row > div{
+    color: #fff;
+}
+.kp-table__row > div, .kp-table__row .kp-table__name{
+    color: #fff;
+}
+.kp-table__row > div:nth-child(5), .kp-table__row > div:nth-child(6){
+    color: var(--text-dark);
+}
+.kp-total__label {
+  color: #fff;
+}
+
+.kp-form__item {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-bottom: 14px;
+  margin-bottom: 14px;
+  border-bottom: 1px solid #2a2d36;
+}
+
+.kp-form__item:last-child {
+  margin-bottom: 0;
+  border-bottom: 0;
+}
+
+.kp-form__field--extra textarea {
+  width: 100%;
+  min-height: 88px;
+  resize: vertical;
+}
+
+.kp-table__entry {
+  display: flex;
+  flex-direction: column;
+}
+
+.kp-table__row-extra {
+  background: var(--secondary-color);
+  color: var(--text-dark);
+  font-size: 10px;
+  font-style: italic;
+  line-height: 1.15;
+  padding: 5px 12px 5px 52px;
+  white-space: pre-line;
+}
+
+.kp__deco-top{
+    width: 49%;
+}
+
+.kp-hero__prod {
+  width: 442px;
+  top: -53px;
+  left: -56px;
+}

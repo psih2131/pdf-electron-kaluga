@@ -1,0 +1,26 @@
+[
+  {
+    "name": "ККС_КП-1",
+    "description": "Ролики с лабиринтными уплотнителями",
+    "link": "offers/kks-kp-1.html",
+    "type": "kks-kp-1",
+    "color": "#944243",
+    "preview": "assets/images/typesPreview/kks-kp-1.svg"
+  },
+  {
+    "name": "ККС_КП-2",
+    "description": "Конвеерные барабаны от производителя",
+    "link": "offers/kks-kp-2.html",
+    "type": "kks-kp-2",
+    "color": "#193051",
+    "preview": "assets/images/typesPreview/kks-kp-2.svg"
+  },
+  {
+    "name": "ККС_КП-3",
+    "description": "Винтовые конвееры от производителя",
+    "link": "offers/kks-kp-3.html",
+    "type": "kks-kp-3",
+    "color": "#E58F46",
+    "preview": "assets/images/typesPreview/kks-kp-3.svg"
+  }
+]

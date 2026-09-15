@@ -89,6 +89,33 @@ export class KpDatabase {
     await runStore(STORE_NAME, 'readwrite', (store) => store.put(record))
     return record.id
   }
+
+  async delete(id) {
+    const result = await runStore(STORE_NAME, 'readwrite', (store) => store.delete(id))
+    return result
+  }
+
+  async copy(id) {
+    const current = await this.get(id)
+    if (!current) {
+      throw new Error(`КП с id ${id} не найден`)
+    }
+
+    const copyDataObject = { ...current.data }
+    console.log( 'copyDataObject', copyDataObject)
+    copyDataObject['kp-name'] = copyDataObject['kp-name'] + ' (копия)'
+    
+
+    const record = {
+      id: crypto.randomUUID(),
+      type: current.type,
+      data: copyDataObject,
+      createdAt: Date.now(),
+      updatedAt: Date.now()
+    }
+    await runStore(STORE_NAME, 'readwrite', (store) => store.add(record))
+  }
+
 }
 
 export class KpDefaults {

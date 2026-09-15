@@ -1,0 +1,124 @@
+.notification-backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 999;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(18, 20, 26, 0.55);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  animation: notification-backdrop-in 0.24s ease-out;
+}
+
+@keyframes notification-backdrop-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.notification {
+  position: absolute;
+  top: 50vh;
+  left: 50vw;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: min(440px, calc(100vw - 40px));
+  min-height: 72px;
+  padding: 18px 18px 18px 20px;
+  border: 1px solid rgba(202, 210, 197, 0.12);
+  border-radius: 18px;
+  background: linear-gradient(145deg, #23262f 0%, #1c1e26 100%);
+  box-shadow:
+    0 24px 48px rgba(0, 0, 0, 0.45),
+    0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+  transform: translate(-50%, -50%);
+  animation: notification-in 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes notification-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.94);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+.notification__icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  color: #fff;
+}
+
+.notification--info .notification__icon {
+  background: #52796f;
+  box-shadow: 0 0 0 4px rgba(82, 121, 111, 0.24);
+}
+
+.notification--success .notification__icon {
+  background: #84a98c;
+  box-shadow: 0 0 0 4px rgba(132, 169, 140, 0.24);
+}
+
+.notification--error .notification__icon {
+  background: #c46b6b;
+  box-shadow: 0 0 0 4px rgba(196, 107, 107, 0.24);
+}
+
+.notification__icon svg {
+  display: block;
+  width: 22px;
+  height: 22px;
+}
+
+.notification__message {
+  flex: 1;
+  min-width: 0;
+  font-size: 15px;
+  line-height: 1.45;
+  font-weight: 500;
+  color: #f0f2f5;
+  letter-spacing: 0.01em;
+}
+
+.notification__close {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 0;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  color: #8b8f9a;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.notification__close:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #e8eaed;
+}
+
+.notification__close svg {
+  display: block;
+  width: 18px;
+  height: 18px;
+}

@@ -1,0 +1,147 @@
+:root {
+  --main-color: #193051;
+  --secondary-color: #BAC1CC;
+  --table-text-dark: #222325;
+  --table-text-light: #DEE1E6;
+}
+
+.kp__deco-bottom::after {
+  border-top-color: var(--secondary-color);
+  border-left-color: var(--secondary-color);
+}
+
+.kp-table__head > div {
+  color: var(--table-text-light);
+}
+
+.kp-table__row {
+  background: var(--main-color);
+  color: var(--table-text-light);
+}
+
+.kp-table__row > div,
+.kp-table__row .kp-table__name {
+  color: var(--table-text-light);
+}
+
+.kp-table__row--alt {
+  background: var(--secondary-color);
+  color: var(--table-text-dark);
+}
+
+.kp-table__row--alt > div,
+.kp-table__row--alt .kp-table__name {
+  color: var(--table-text-dark);
+}
+.kp-table__row{
+    min-height: 57px;
+}
+.kp-table__wrap{
+    row-gap: 0;
+}
+.kp-table__head{
+    margin-bottom: 8px;
+}
+.kp-table__row--alt{
+    border-radius: 0;
+}
+.kp-table{
+    gap: 0;
+}
+.kp-total{
+    margin-top: 15px;
+}
+.kp-note{
+    padding-right: 50px;
+}
+.kp-note{
+    color: var(--table-text-dark);
+}
+.kp-total{
+    margin-bottom: 10px;
+}
+.kp-foot__banner{
+    font-weight: 500;
+}
+.kp-term__label{
+    font-weight: 500;
+}
+.kp-hero__sub-text {
+  color: var(--table-text-dark);
+}
+
+.kp-hero__offer-heading {
+  width: 260px;
+  margin: 0 0 12px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.25;
+  text-align: right;
+  color: var(--table-text-dark);
+  white-space: pre-line;
+}
+.kp-hero{padding-top: 34px;}
+.kp-manager{
+  margin-top: 34px;
+}
+
+.kp-hero__prod {
+ 
+  width: 304px;
+  top: -37px;
+  left: -35px;
+
+}
+
+
+.kp-hero__title {
+  width: 500px;
+  height: 86px;
+  left: -35px;
+  top: 71px;
+}
+
+.kp-hero__title-svg {
+  width: 500px;
+  height: 86px;
+}
+.kp-hero__sub {
+  width: 284px;
+  height: 45px;
+  left: -34px;
+  top: 154px;
+}
+
+.kp-hero__sub-svg {
+  width: 284px;
+  height: 45px;
+}
+.kp-hero__title-text{
+  width: 312px;
+  right: auto;
+  left: 0;
+  padding-right: 0;
+  padding-top: 8px;
+}
+.kp-hero__title{
+  display: flex;
+  padding-left: 50px;
+  justify-content: flex-start;
+}
+.kp-hero__sub-text{
+  width: 100%;
+  text-align: left;
+  padding-left: 50px;
+  font-size: 13px;
+  padding-right: 50px;
+}
+.kp__deco-top{
+  width: 41%;
+}
+.kp-table__head > div{
+  font-size: 12px;
+}
+.kp-total__label{
+  font-size: 12px;
+  font-weight: 600;
+}

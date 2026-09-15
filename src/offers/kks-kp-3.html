@@ -10,18 +10,19 @@
       http-equiv="X-Content-Security-Policy"
       content="default-src 'self'; script-src 'self'; img-src 'self' kp-img:; worker-src 'self' blob:; frame-src 'self'"
     />
-    <title>ККС_КП-1 — Kaluga</title>
+    <title>ККС_КП-2 — Kaluga</title>
     <link rel="stylesheet" href="../assets/style/styles.css" />
     <link rel="stylesheet" href="../assets/style/notifications.css" />
     <link rel="stylesheet" href="../assets/style/kks-kp-1.css" />
-   
+    <link rel="stylesheet" href="../assets/style/kks-kp-2.css" />
+    <link rel="stylesheet" href="../assets/style/kks-kp-3.css" />
   </head>
   <body>
     <div class="app">
       <header class="header">
         <div class="header__left">
           <a class="header__back" href="../index.html" aria-label="Назад">←</a>
-          <h1 class="header__title">ККС_КП-1</h1>
+          <h1 class="header__title">ККС_КП-2</h1>
         </div>
         <div class="header__right">
           <button class="header__btn header__btn--save" id="save-btn" type="button">
@@ -86,14 +87,10 @@
             </div>
   
             <div class="kp-form__group">
-              <h2 class="kp-form__title">Контакты</h2>
+              <h2 class="kp-form__title">Заголовок КП</h2>
               <label class="kp-form__field">
-                <span>Телефон</span>
-                <input type="text" name="phone" />
-              </label>
-              <label class="kp-form__field">
-                <span>Email</span>
-                <input type="text" name="email" />
+                <span>Текст</span>
+                <textarea name="offer-heading" rows="3"></textarea>
               </label>
             </div>
   
@@ -141,28 +138,34 @@
             <div class="kp-form__group">
               <h2 class="kp-form__title">Таблица</h2>
               <div class="kp-form__rows" id="table-rows">
-                <div class="kp-form__row">
-                  <label class="kp-form__field">
-                    <span>Наименование</span>
-                    <input type="text" name="item-name" />
+                <div class="kp-form__item">
+                  <div class="kp-form__row">
+                    <label class="kp-form__field">
+                      <span>Наименование</span>
+                      <input type="text" name="item-name" />
+                    </label>
+                    <label class="kp-form__field">
+                      <span>Ед. изм.</span>
+                      <input type="text" name="item-unit" />
+                    </label>
+                    <label class="kp-form__field">
+                      <span>Кол-во</span>
+                      <input class="js-num" type="text" inputmode="numeric" name="item-qty" />
+                    </label>
+                    <label class="kp-form__field">
+                      <span>Цена за ед.</span>
+                      <input class="js-num" type="text" inputmode="decimal" name="item-price" />
+                    </label>
+                    <label class="kp-form__field">
+                      <span>Цена итого</span>
+                      <span class="kp-form__computed" data-item-sum></span>
+                    </label>
+                    <button class="kp-form__remove" type="button" aria-label="Удалить строку">×</button>
+                  </div>
+                  <label class="kp-form__field kp-form__field--extra">
+                    <span>Доп. информация</span>
+                    <textarea name="item-extra" rows="4" placeholder="- пункт 1&#10;- пункт 2"></textarea>
                   </label>
-                  <label class="kp-form__field">
-                    <span>Ед. изм.</span>
-                    <input type="text" name="item-unit" />
-                  </label>
-                  <label class="kp-form__field">
-                    <span>Кол-во</span>
-                    <input class="js-num" type="text" inputmode="numeric" name="item-qty" />
-                  </label>
-                  <label class="kp-form__field">
-                    <span>Цена за ед.</span>
-                    <input class="js-num" type="text" inputmode="decimal" name="item-price" />
-                  </label>
-                  <label class="kp-form__field">
-                    <span>Цена итого</span>
-                    <span class="kp-form__computed" data-item-sum></span>
-                  </label>
-                  <button class="kp-form__remove" type="button" aria-label="Удалить строку">×</button>
                 </div>
               </div>
               <button class="kp-form__add" id="add-row-btn" type="button">Добавить поле</button>
@@ -231,12 +234,12 @@
           <article class="kp">
             <div class="kp__deco-top" aria-hidden="true">
               <svg class="kp__deco-top-svg" width="487" height="25" viewBox="0 0 487 25" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M16.2469 20.3087C18.6191 23.2739 22.2105 25 26.0078 25H288.5V0H0L16.2469 20.3087Z" fill="#50563A"/>
-                <rect x="288" width="199" height="25" fill="#50563A"/>
+                <path d="M16.2469 20.3087C18.6191 23.2739 22.2105 25 26.0078 25H288.5V0H0L16.2469 20.3087Z" fill="#BAC1CA"/>
+                <rect x="288" width="199" height="25" fill="#BAC1CA"/>
               </svg> 
               
               <svg class="kp__deco-top-svg-2" width="49" height="49" viewBox="0 0 49 49" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M-4.90642e-05 24.0293L24.4838 0.00136445L48.593 25.6837L32.0075 44.9361C28.4402 49.077 22.0355 49.1084 18.4279 45.0024L-4.90642e-05 24.0293Z" fill="#C8A883"/>
+                <path d="M-4.90642e-05 24.0293L24.4838 0.00136445L48.593 25.6837L32.0075 44.9361C28.4402 49.077 22.0355 49.1084 18.4279 45.0024L-4.90642e-05 24.0293Z" fill="#1A3151"/>
                 </svg>
                 
             </div>
@@ -244,7 +247,7 @@
             <header class="kp-head">
               <img
                 class="kp-head__logo"
-                src="images/logo-v1.png"
+                src="images/logo-kp-3.png"
                 alt="Калужские конвейерные системы"
               />
               <div class="kp-head__info">
@@ -257,12 +260,12 @@
   
             <div class="kp-rule" aria-hidden="true">
               <svg class="kp-rule__svg-1" width="829" height="31" viewBox="0 0 829 31" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M-28 0.5H412.601C417.288 0.5 421.789 2.32759 425.149 5.59433L445.526 25.4057C448.886 28.6724 453.387 30.5 458.073 30.5H829" stroke="#853A3E"/>
+                <path d="M-28 0.5H412.601C417.288 0.5 421.789 2.32759 425.149 5.59433L445.526 25.4057C448.886 28.6724 453.387 30.5 458.073 30.5H829" stroke="#193051"/>
               </svg>
               
               <svg class="kp-rule__svg-2" width="451" height="33" viewBox="0 0 451 33" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M423.703 3.94155C421.34 1.42649 418.043 0 414.592 0H158.5V33H451L423.703 3.94155Z" fill="#50563A"/>
-                <rect x="159" y="33" width="199" height="33" transform="rotate(-180 159 33)" fill="#50563A"/>
+                <path d="M423.703 3.94155C421.34 1.42649 418.043 0 414.592 0H158.5V33H451L423.703 3.94155Z" fill="#BAC1CA"/>
+                <rect x="159" y="33" width="199" height="33" transform="rotate(-180 159 33)" fill="#BAC1CA"/>
               </svg>
                 
                 
@@ -276,34 +279,33 @@
                 
                 <p class="kp-hero__title">
   
-                  <svg class="kp-hero__title-svg" width="459" height="69" viewBox="0 0 459 69" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M0 25C0 11.1929 11.1929 0 25 0H438.478C442.928 0 447.248 1.49629 450.745 4.24832C457.703 9.72466 460.188 19.1498 456.835 27.3451L439.793 69H25C11.1929 69 0 57.8071 0 44V25Z" fill="#853A3E"/>
+                  <svg class="kp-hero__title-svg" width="535" height="86" viewBox="0 0 535 86" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M0 0H510.912C516.109 0 521.136 1.743 525.216 5.306C533.333 12.127 536.128 23.884 532.395 34.116L512.456 86H0V0Z" fill="#193051"/>
                   </svg>
                                       
                   <span class="kp-hero__title-text" data-kp="product-title"></span>
                 </p>
                 <p class="kp-hero__sub">
-                  <svg class="kp-hero__sub-svg" width="305" height="56" viewBox="0 0 305 56" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M0 0H305L286.862 39.833C282.381 49.6737 272.549 55.9751 261.736 55.9364L0 55V0Z" fill="#50563A"/>
-                    </svg>
+                  <svg class="kp-hero__sub-svg" width="284" height="45" viewBox="0 0 284 45" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M0 0H284L267.123 32.035C262.847 39.899 253.789 44.977 243.718 44.946L0 45V0Z" fill="#BAC1CA"/>
+                  </svg>
   
                   <span class="kp-hero__sub-text" data-kp="product-sub"></span>
                 </p>
   
                 <img
                   class="kp-hero__prod"
-                  src="images/prod-v1.png"
-                  alt="Ролик конвейерный"
+                  src="images/prod-kp-3.png"
+                  alt="Винтовые конвейеры"
                 />
               </div>
   
               <div class="kp-hero__aside">
-                <p class="kp-hero__phones" data-kp="phone"></p>
-                <p class="kp-hero__web" data-kp="email"></p>
-  
+                <p class="kp-hero__offer-heading" data-kp="offer-heading"></p>
+
                 <div class="kp-manager">
                   <svg class="kp-manager__svg" width="483" height="70" viewBox="0 0 483 70" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M2.03205 43.7789L20.9863 0.5H481.986V69H18.5201C5.53642 69 -3.17662 55.6721 2.03205 43.7789Z" stroke="#853A3E"/>
+                    <path d="M2.03205 43.7789L20.9863 0.5H481.986V69H18.5201C5.53642 69 -3.17662 55.6721 2.03205 43.7789Z" stroke="#193051"/>
                   </svg>
                     
                   <p class="kp-manager__text">
@@ -326,15 +328,15 @@
                 <div class="kp-table__head">
                   <div>№</div>
                   <div class="kp-table__name-h">Наименование товара</div>
-                  <div>Ед.<br />изм.</div>
-                  <div>Кол<br />-во</div>
+                  <div>Ед. изм.</div>
+                  <div>Кол-во</div>
                   <div>Цена за ед.<br />с НДС (руб.)</div>
                   <div>ЦЕНА ИТОГО<br />с НДС (руб.)</div>
                 </div>
               </div>
   
               <div class="kp-total">
-                <span class="kp-total__label">ИТОГО (с НДС)</span>
+                <span class="kp-total__label">Итого с ндс</span>
                 <span class="kp-total__value" data-kp="total"></span>
               </div>
             </section>
@@ -367,6 +369,6 @@
         
       </main>
     </div>
-    <script type="module" src="../features/ui/kks-kp-1.js"></script>
+    <script type="module" src="../features/ui/kks-kp-3.js"></script>
   </body>
 </html>

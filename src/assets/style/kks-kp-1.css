@@ -1,3 +1,8 @@
+:root {
+  --main-color: #944243;
+
+}
+
 .workspace__wrapper{
   display: flex;
   justify-content: space-between;
@@ -9,6 +14,7 @@
   display: flex;
   flex-direction: column;
   gap: 24px;
+  margin: 0 auto;
 }
 
 .kp-body {
@@ -341,7 +347,7 @@ position: relative;
 .kp-table__head > div {
   min-height: 50px;
   padding: 1.5mm 1mm;
-  background: #944243;
+  background: var(--main-color);
   color: #fff;
   font-size: 13px;
   font-weight: 500;
@@ -358,8 +364,8 @@ position: relative;
 
 .kp-table__name-h {
   background: #fff !important;
-  color: #944243 !important;
-  border: 1px solid #944243;
+  color: var(--main-color) !important;
+  border: 1px solid var(--main-color);
 }
 
 .kp-table__row {
@@ -416,11 +422,11 @@ position: relative;
   font-size: 13px;
   font-weight: 700;
   border-bottom-left-radius: 10px;
-  background: #944243;
+  background: var(--main-color);
 }
 
 .kp-total__value {
-  border: 1px solid #944243;
+  border: 1px solid var(--main-color);
   border-radius: 0 10px 0 0;
   display: flex;
   justify-content: center;
@@ -467,7 +473,7 @@ position: relative;
 
 .kp-term__label {
   padding:5px 5px 5px 10px;
-  background: #944243;
+  background: var(--main-color);
   color: #fff;
   font-weight: 700;
   clip-path: polygon(0 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
@@ -477,7 +483,7 @@ position: relative;
 .kp-term__value {
   display: flex;
   padding: 1px;
-  background: #944243;
+  background: var(--main-color);
   clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%);
   border-radius: 0 100px 100px 0;
 }
@@ -503,7 +509,7 @@ position: relative;
   align-items: center;
 
   padding: 5px 30px 5px 10px;
-  background: #944243;
+  background: var(--main-color);
   color: #fff;
   font-size: 12px;
   font-weight: 700;
@@ -543,7 +549,7 @@ position: relative;
   width: 23%;
   height: 19px;
   border-radius: 0 15px 15px 0;
-  background: #944243;
+  background: var(--main-color);
  
 }
 

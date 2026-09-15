@@ -1,13 +1,14 @@
 import { KpDatabase, KpDefaults } from '../../backend/db.js'
 import { KP_SEED } from '../../backend/kp-seed.js'
-import { getDocument, GlobalWorkerOptions } from '../vendor/pdfjs/pdf.min.mjs'
+import { getDocument, GlobalWorkerOptions } from '../../assets/vendor/pdfjs/pdf.min.mjs'
+import DocumentService from '../documents/DocumentService.js'
 
 GlobalWorkerOptions.workerSrc = new URL(
-  '../vendor/pdfjs/pdf.worker.min.mjs',
+  '../../assets/vendor/pdfjs/pdf.worker.min.mjs',
   import.meta.url
 ).href
 
-const KP_TYPE = 'kks-kp-1'
+const KP_TYPE = new URLSearchParams(window.location.search).get('type') ?? 'kks-kp-3'
 
 document.getElementById('print-btn')?.addEventListener('click', () => {
   if (typeof window.kaluga?.printKp !== 'function') {
@@ -28,8 +29,7 @@ const STATIC_KEYS = [
   'inn-kpp',
   'okpo-ogrn',
   'address',
-  'phone',
-  'email',
+  'offer-heading',
   'product-title',
   'product-sub',
   'manager-name',
@@ -46,7 +46,7 @@ const STATIC_KEYS = [
   'sign-name'
 ]
 
-const ITEM_KEYS = ['item-name', 'item-unit', 'item-qty', 'item-price', 'item-sum']
+const ITEM_KEYS = ['item-name', 'item-unit', 'item-qty', 'item-price', 'item-sum', 'item-extra']
 const TERM_KEYS = ['term-label', 'term-value']
 
 const isTableKey = (key) => key === 'item-count' || key.startsWith('item-') || key === 'total'
@@ -58,6 +58,9 @@ const createEmptyKpData = () => {
   for (const key of STATIC_KEYS) {
     data[key] = ''
   }
+
+  data['offer-heading'] =
+    'Коммерческое предложение на\nпоставку конвейерного барабана'
 
   data['item-count'] = 1
   data['term-count'] = 1
@@ -78,29 +81,35 @@ window.kpData = kpData
 
 const createTableRow = () => {
   const row = document.createElement('div')
-  row.className = 'kp-form__row'
+  row.className = 'kp-form__item'
   row.innerHTML = `
-    <label class="kp-form__field">
-      <span>Наименование</span>
-      <input type="text" name="item-name" />
+    <div class="kp-form__row">
+      <label class="kp-form__field">
+        <span>Наименование</span>
+        <input type="text" name="item-name" />
+      </label>
+      <label class="kp-form__field">
+        <span>Ед. изм.</span>
+        <input type="text" name="item-unit" />
+      </label>
+      <label class="kp-form__field">
+        <span>Кол-во</span>
+        <input class="js-num" type="text" inputmode="numeric" name="item-qty" />
+      </label>
+      <label class="kp-form__field">
+        <span>Цена за ед.</span>
+        <input class="js-num" type="text" inputmode="decimal" name="item-price" />
+      </label>
+      <label class="kp-form__field">
+        <span>Цена итого</span>
+        <span class="kp-form__computed" data-item-sum></span>
+      </label>
+      <button class="kp-form__remove" type="button" aria-label="Удалить строку">×</button>
+    </div>
+    <label class="kp-form__field kp-form__field--extra">
+      <span>Доп. информация</span>
+      <textarea name="item-extra" rows="4" placeholder="- пункт 1&#10;- пункт 2"></textarea>
     </label>
-    <label class="kp-form__field">
-      <span>Ед. изм.</span>
-      <input type="text" name="item-unit" />
-    </label>
-    <label class="kp-form__field">
-      <span>Кол-во</span>
-      <input class="js-num" type="text" inputmode="numeric" name="item-qty" />
-    </label>
-    <label class="kp-form__field">
-      <span>Цена за ед.</span>
-      <input class="js-num" type="text" inputmode="decimal" name="item-price" />
-    </label>
-    <label class="kp-form__field">
-      <span>Цена итого</span>
-      <span class="kp-form__computed" data-item-sum></span>
-    </label>
-    <button class="kp-form__remove" type="button" aria-label="Удалить строку">×</button>
   `
   return row
 }
@@ -135,7 +144,7 @@ const getFileExt = (file) => {
 
 const readKpDataFromForm = () => {
   const data = createEmptyKpData()
-  const itemRowList = [...tableRows.querySelectorAll(':scope > .kp-form__row')]
+  const itemRowList = [...tableRows.querySelectorAll(':scope > .kp-form__item')]
   const termRowList = [...termRows.querySelectorAll(':scope > .kp-form__row')]
 
   for (const key of STATIC_KEYS) {
@@ -211,7 +220,7 @@ const formatRowSum = (value) => {
 
 const fillItemSums = (data) => {
   const count = Number(data['item-count']) || 0
-  const rows = [...tableRows.querySelectorAll(':scope > .kp-form__row')]
+  const rows = [...tableRows.querySelectorAll(':scope > .kp-form__item')]
 
   for (let n = 1; n <= count; n += 1) {
     const qty = data[`item-qty-${n}`]
@@ -223,7 +232,7 @@ const fillItemSums = (data) => {
 
     data[`item-sum-${n}`] = formatted
 
-    const view = rows[n - 1]?.querySelector('[data-item-sum]')
+    const view = rows[n - 1]?.querySelector('.kp-form__row [data-item-sum]')
 
     if (view) {
       view.textContent = formatted
@@ -288,7 +297,7 @@ const renderTablePreview = () => {
   const count = Number(kpData['item-count']) || 0
   let shown = 0
 
-  wrap?.querySelectorAll('.kp-table__row').forEach((row) => row.remove())
+  wrap?.querySelectorAll('.kp-table__entry').forEach((entry) => entry.remove())
 
   for (let n = 1; n <= count; n += 1) {
     const name = kpData[`item-name-${n}`]
@@ -296,23 +305,31 @@ const renderTablePreview = () => {
     const qty = kpData[`item-qty-${n}`]
     const price = kpData[`item-price-${n}`]
     const sum = kpData[`item-sum-${n}`]
+    const extra = kpData[`item-extra-${n}`]
 
     if (![name, unit, qty, price, sum].some(hasValue)) {
       continue
     }
 
     shown += 1
-    const row = document.createElement('div')
-    row.className = shown % 2 === 0 ? 'kp-table__row kp-table__row--alt' : 'kp-table__row'
-    row.innerHTML = `
-      <div>${shown}</div>
-      <div class="kp-table__name">${escapeHtml(name)}</div>
-      <div>${escapeHtml(unit)}</div>
-      <div>${escapeHtml(qty)}</div>
-      <div>${escapeHtml(hasValue(price) ? formatRowSum(parseMoney(price)) : '')}</div>
-      <div>${escapeHtml(sum)}</div>
+    const entry = document.createElement('div')
+    entry.className = 'kp-table__entry'
+    entry.innerHTML = `
+      <div class="kp-table__row">
+        <div>${shown}</div>
+        <div class="kp-table__name">${escapeHtml(name)}</div>
+        <div>${escapeHtml(unit)}</div>
+        <div>${escapeHtml(qty)}</div>
+        <div>${escapeHtml(hasValue(price) ? formatRowSum(parseMoney(price)) : '')}</div>
+        <div>${escapeHtml(sum)}</div>
+      </div>
+      ${
+        hasValue(extra)
+          ? `<div class="kp-table__row-extra">${escapeHtml(extra)}</div>`
+          : ''
+      }
     `
-    wrap?.append(row)
+    wrap?.append(entry)
   }
 
   const itemsTotal = sumItemTotals()
@@ -380,8 +397,8 @@ const resetKpPages = () => {
   const body = pageBody(first)
 
   document.querySelectorAll('.kp--clone').forEach((clone) => {
-    clone.querySelectorAll('.kp-table__row').forEach((row) => {
-      wrap?.append(row)
+    clone.querySelectorAll('.kp-table__entry').forEach((entry) => {
+      wrap?.append(entry)
     })
 
     const total = clone.querySelector('.kp-total')
@@ -441,21 +458,21 @@ const lastMovablePiece = (page) => {
     return total
   }
 
-  const rows = [...page.querySelectorAll('.kp-table__row')]
+  const entries = [...page.querySelectorAll('.kp-table__entry')]
 
-  return rows.at(-1) ?? null
+  return entries.at(-1) ?? null
 }
 
 const placePieceOnPage = (page, piece) => {
-  if (piece.classList.contains('kp-table__row')) {
+  if (piece.classList.contains('kp-table__entry')) {
     const table = page.querySelector('.kp-table')
     const wrap = page.querySelector('.kp-table__wrap')
-    const firstRow = wrap?.querySelector('.kp-table__row')
+    const firstEntry = wrap?.querySelector('.kp-table__entry')
 
     setHidden(table, false)
 
-    if (firstRow) {
-      wrap.insertBefore(piece, firstRow)
+    if (firstEntry) {
+      wrap.insertBefore(piece, firstEntry)
     } else {
       wrap?.append(piece)
     }
@@ -479,7 +496,7 @@ const makeContinuedPage = (source) => {
   const page = source.cloneNode(true)
 
   page.classList.add('kp--clone', 'kp--continued')
-  page.querySelectorAll('.kp-table__row').forEach((row) => row.remove())
+  page.querySelectorAll('.kp-table__entry').forEach((entry) => entry.remove())
   page.querySelector('.kp-total')?.remove()
   page.querySelector('.kp-after')?.remove()
 
@@ -494,7 +511,7 @@ const finishKpPages = () => {
     const table = page.querySelector('.kp-table')
     const after = page.querySelector('.kp-after')
     const terms = page.querySelector('.kp-terms')
-    const hasRows = Boolean(page.querySelector('.kp-table__row'))
+    const hasRows = Boolean(page.querySelector('.kp-table__entry'))
     const hasTotal = Boolean(page.querySelector('.kp-total'))
     const hasTerms = Boolean(page.querySelector('.kp-term'))
     const note = page.querySelector('.kp-note')
@@ -555,7 +572,7 @@ const layoutKpPages = () => {
 
     placePieceOnPage(next, piece)
 
-    const nextPieces = next.querySelectorAll('.kp-table__row, .kp-total, .kp-after')
+    const nextPieces = next.querySelectorAll('.kp-table__entry, .kp-total, .kp-after')
 
     if (pageOverflows(next) && nextPieces.length <= 1) {
       break
@@ -584,7 +601,7 @@ const renderPreview = () => {
   const title = document.querySelector('.header__title')
 
   if (title) {
-    title.textContent = hasValue(kpData['kp-name']) ? kpData['kp-name'] : 'ККС_КП-1'
+    title.textContent = hasValue(kpData['kp-name']) ? kpData['kp-name'] : 'ККС_КП-2'
   }
 
   document.querySelectorAll('[data-kp]').forEach((node) => {
@@ -609,6 +626,10 @@ const renderPreview = () => {
   )
   setHidden(document.querySelector('.kp-hero__title'), !hasValue(kpData['product-title']))
   setHidden(document.querySelector('.kp-hero__sub'), !hasValue(kpData['product-sub']))
+  setHidden(
+    document.querySelector('.kp-hero__offer-heading'),
+    !hasValue(kpData['offer-heading'])
+  )
   setHidden(
     document.querySelector('.kp-manager'),
     !hasValue(kpData['manager-name']) && !hasPhoto
@@ -712,7 +733,7 @@ const applyKpData = (data) => {
   syncKpData()
 }
 
-const bindRepeater = (root, addBtn, createItem) => {
+const bindRepeater = (root, addBtn, createItem, rowSelector) => {
   addBtn?.addEventListener('click', () => {
     root?.appendChild(createItem())
     syncKpData()
@@ -725,19 +746,19 @@ const bindRepeater = (root, addBtn, createItem) => {
       return
     }
 
-    const rows = root.querySelectorAll(':scope > .kp-form__row')
+    const rows = root.querySelectorAll(`:scope > ${rowSelector}`)
 
     if (rows.length < 2) {
       return
     }
 
-    removeBtn.closest('.kp-form__row')?.remove()
+    removeBtn.closest(rowSelector)?.remove()
     syncKpData()
   })
 }
 
-bindRepeater(tableRows, document.getElementById('add-row-btn'), createTableRow)
-bindRepeater(termRows, document.getElementById('add-term-btn'), createTermRow)
+bindRepeater(tableRows, document.getElementById('add-row-btn'), createTableRow, '.kp-form__item')
+bindRepeater(termRows, document.getElementById('add-term-btn'), createTermRow, '.kp-form__row')
 
 form?.addEventListener('input', (event) => {
   const field = event.target
@@ -793,26 +814,21 @@ document.getElementById('clear-fields-btn')?.addEventListener('click', () => {
 
 const getQueryParams = () => new URLSearchParams(window.location.search)
 
-const hasQueryParams = () => [...getQueryParams().keys()].length > 0
-
 document.getElementById('save-btn')?.addEventListener('click', async () => {
   syncKpData()
 
-  const db = new KpDatabase(KP_TYPE, { ...kpData })
+  const documentService = new DocumentService()
   const params = getQueryParams()
+  const id = params.get('id')
 
-  if (!hasQueryParams()) {
-    const id = await db.add()
-    params.set('id', id)
+  if (!id) {
+    const newId = await documentService.AddDocument(KP_TYPE, { ...kpData })
+    params.set('id', newId)
     history.replaceState(null, '', `${window.location.pathname}?${params}`)
     return
   }
 
-  const id = params.get('id')
-
-  if (id) {
-    await db.update(id)
-  }
+  await documentService.UpdateDocument(KP_TYPE, { ...kpData }, id)
 })
 
 const renderInsertPdf = async () => {
@@ -824,7 +840,7 @@ const renderInsertPdf = async () => {
 
   try {
     const pdf = await getDocument({
-      url: new URL('../pdf/add-v1.pdf', import.meta.url).href,
+      url: new URL('../../assets/pdf/add-v3.pdf', import.meta.url).href,
       verbosity: 0
     }).promise
     const page = await pdf.getPage(1)
@@ -847,7 +863,7 @@ const renderInsertPdf = async () => {
     const frame = document.createElement('iframe')
     frame.className = 'kp-insert__pdf'
     frame.title = 'Рекламный буклет'
-    frame.src = `${new URL('../pdf/add-v1.pdf', import.meta.url).href}#toolbar=0&navpanes=0&scrollbar=0`
+    frame.src = `${new URL('../../assets/pdf/add-v3.pdf', import.meta.url).href}#toolbar=0&navpanes=0&scrollbar=0`
     canvas.replaceWith(frame)
   }
 }
