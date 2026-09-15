@@ -10,7 +10,8 @@
     "start": "electron .",
     "dist": "electron-builder --win nsis",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dist:publish": "dotenv -e .env -- electron-builder --win nsis --publish always"
+    "dist:publish": "dotenv -e .env -- electron-builder --win nsis --publish always",
+    "dist:publish:ci": "electron-builder --win nsis --publish always"
   },
   "repository": {
     "type": "git",
