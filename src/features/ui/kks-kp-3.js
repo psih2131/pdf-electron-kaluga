@@ -2,6 +2,15 @@ import { KpDatabase, KpDefaults } from '../../backend/db.js'
 import { KP_SEED } from '../../backend/kp-seed.js'
 import { getDocument, GlobalWorkerOptions } from '../../assets/vendor/pdfjs/pdf.min.mjs'
 import DocumentService from '../documents/DocumentService.js'
+import SystemNotifications from '../notifications/SystemNotifications.js'
+import {
+  KpPriceTable,
+  ITEM_KEYS_ENTRY,
+  isTableKey,
+  isAutoTableKey,
+  seedEmptyAutoTableData,
+  hasValue,
+} from './kp-price-table.js'
 
 GlobalWorkerOptions.workerSrc = new URL(
   '../../assets/vendor/pdfjs/pdf.worker.min.mjs',
@@ -46,11 +55,9 @@ const STATIC_KEYS = [
   'sign-name'
 ]
 
-const ITEM_KEYS = ['item-name', 'item-unit', 'item-qty', 'item-price', 'item-sum', 'item-extra']
 const TERM_KEYS = ['term-label', 'term-value']
 
-const isTableKey = (key) => key === 'item-count' || key.startsWith('item-') || key === 'total'
-const isDefaultsSkipKey = (key) => isTableKey(key) || key === 'kp-name'
+const isDefaultsSkipKey = (key) => isTableKey(key) || isAutoTableKey(key) || key === 'kp-name'
 
 const createEmptyKpData = () => {
   const data = {}
@@ -65,7 +72,7 @@ const createEmptyKpData = () => {
   data['item-count'] = 1
   data['term-count'] = 1
 
-  for (const key of ITEM_KEYS) {
+  for (const key of ITEM_KEYS_ENTRY) {
     data[`${key}-1`] = ''
   }
 
@@ -73,46 +80,20 @@ const createEmptyKpData = () => {
     data[`${key}-1`] = ''
   }
 
+  seedEmptyAutoTableData(data, 1)
+
   return data
 }
 
 const kpData = createEmptyKpData()
 window.kpData = kpData
 
-const createTableRow = () => {
-  const row = document.createElement('div')
-  row.className = 'kp-form__item'
-  row.innerHTML = `
-    <div class="kp-form__row">
-      <label class="kp-form__field">
-        <span>Наименование</span>
-        <input type="text" name="item-name" />
-      </label>
-      <label class="kp-form__field">
-        <span>Ед. изм.</span>
-        <input type="text" name="item-unit" />
-      </label>
-      <label class="kp-form__field">
-        <span>Кол-во</span>
-        <input class="js-num" type="text" inputmode="numeric" name="item-qty" />
-      </label>
-      <label class="kp-form__field">
-        <span>Цена за ед.</span>
-        <input class="js-num" type="text" inputmode="decimal" name="item-price" />
-      </label>
-      <label class="kp-form__field">
-        <span>Цена итого</span>
-        <span class="kp-form__computed" data-item-sum></span>
-      </label>
-      <button class="kp-form__remove" type="button" aria-label="Удалить строку">×</button>
-    </div>
-    <label class="kp-form__field kp-form__field--extra">
-      <span>Доп. информация</span>
-      <textarea name="item-extra" rows="4" placeholder="- пункт 1&#10;- пункт 2"></textarea>
-    </label>
-  `
-  return row
-}
+const priceTable = new KpPriceTable({
+  variant: 'entry',
+  tableRows,
+  form,
+  kpData,
+})
 
 const createTermRow = () => {
   const row = document.createElement('div')
@@ -144,7 +125,7 @@ const getFileExt = (file) => {
 
 const readKpDataFromForm = () => {
   const data = createEmptyKpData()
-  const itemRowList = [...tableRows.querySelectorAll(':scope > .kp-form__item')]
+  const itemRowList = priceTable.getFormItemRows()
   const termRowList = [...termRows.querySelectorAll(':scope > .kp-form__row')]
 
   for (const key of STATIC_KEYS) {
@@ -157,20 +138,10 @@ const readKpDataFromForm = () => {
     data[key] = field.type === 'file' ? kpData[key] ?? '' : field.value
   }
 
-  data['item-count'] = itemRowList.length
   data['term-count'] = termRowList.length
 
-  itemRowList.forEach((row, index) => {
-    const n = index + 1
-
-    for (const key of ITEM_KEYS) {
-      if (key === 'item-sum') {
-        continue
-      }
-
-      data[`${key}-${n}`] = row.querySelector(`[name="${key}"]`)?.value ?? ''
-    }
-  })
+  priceTable.readItemsInto(data, itemRowList)
+  priceTable.readAutoTableInto(data)
 
   termRowList.forEach((row, index) => {
     const n = index + 1
@@ -181,74 +152,6 @@ const readKpDataFromForm = () => {
   })
 
   return data
-}
-
-const hasValue = (value) => String(value ?? '').trim() !== ''
-
-const parseMoney = (value) => {
-  const normalized = String(value ?? '')
-    .replace(/\s/g, '')
-    .replace(',', '.')
-  const num = Number(normalized)
-
-  return Number.isFinite(num) ? num : 0
-}
-
-const formatMoney = (value) => {
-  const rounded = Math.round(value * 100) / 100
-  const [intPart, frac] = rounded.toFixed(2).split('.')
-  const grouped = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
-
-  if (frac === '00') {
-    return `${grouped} руб.`
-  }
-
-  return `${grouped},${frac} руб.`
-}
-
-const formatRowSum = (value) => {
-  const rounded = Math.round(value * 100) / 100
-  const [intPart, frac] = rounded.toFixed(2).split('.')
-  const grouped = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
-
-  if (frac === '00') {
-    return grouped
-  }
-
-  return `${grouped},${frac}`
-}
-
-const fillItemSums = (data) => {
-  const count = Number(data['item-count']) || 0
-  const rows = [...tableRows.querySelectorAll(':scope > .kp-form__item')]
-
-  for (let n = 1; n <= count; n += 1) {
-    const qty = data[`item-qty-${n}`]
-    const price = data[`item-price-${n}`]
-    const formatted =
-      hasValue(qty) && hasValue(price)
-        ? formatRowSum(parseMoney(qty) * parseMoney(price))
-        : ''
-
-    data[`item-sum-${n}`] = formatted
-
-    const view = rows[n - 1]?.querySelector('.kp-form__row [data-item-sum]')
-
-    if (view) {
-      view.textContent = formatted
-    }
-  }
-}
-
-const sumItemTotals = () => {
-  const count = Number(kpData['item-count']) || 0
-  let total = 0
-
-  for (let n = 1; n <= count; n += 1) {
-    total += parseMoney(kpData[`item-sum-${n}`])
-  }
-
-  return total
 }
 
 const escapeHtml = (value) => {
@@ -292,61 +195,6 @@ const renderManagerPhoto = () => {
   return true
 }
 
-const renderTablePreview = () => {
-  const wrap = document.querySelector('.kp-pages > .kp:not(.kp--clone) .kp-table__wrap')
-  const count = Number(kpData['item-count']) || 0
-  let shown = 0
-
-  wrap?.querySelectorAll('.kp-table__entry').forEach((entry) => entry.remove())
-
-  for (let n = 1; n <= count; n += 1) {
-    const name = kpData[`item-name-${n}`]
-    const unit = kpData[`item-unit-${n}`]
-    const qty = kpData[`item-qty-${n}`]
-    const price = kpData[`item-price-${n}`]
-    const sum = kpData[`item-sum-${n}`]
-    const extra = kpData[`item-extra-${n}`]
-
-    if (![name, unit, qty, price, sum].some(hasValue)) {
-      continue
-    }
-
-    shown += 1
-    const entry = document.createElement('div')
-    entry.className = 'kp-table__entry'
-    entry.innerHTML = `
-      <div class="kp-table__row">
-        <div>${shown}</div>
-        <div class="kp-table__name">${escapeHtml(name)}</div>
-        <div>${escapeHtml(unit)}</div>
-        <div>${escapeHtml(qty)}</div>
-        <div>${escapeHtml(hasValue(price) ? formatRowSum(parseMoney(price)) : '')}</div>
-        <div>${escapeHtml(sum)}</div>
-      </div>
-      ${
-        hasValue(extra)
-          ? `<div class="kp-table__row-extra">${escapeHtml(extra)}</div>`
-          : ''
-      }
-    `
-    wrap?.append(entry)
-  }
-
-  const itemsTotal = sumItemTotals()
-  kpData.total = String(itemsTotal)
-
-  const totalField = form.querySelector('[name="total"]')
-  const totalView = document.querySelector('.kp-total__value')
-
-  if (totalField) {
-    totalField.value = itemsTotal ? String(itemsTotal) : ''
-  }
-
-  if (totalView) {
-    totalView.textContent = formatMoney(itemsTotal)
-  }
-}
-
 const renderTermsPreview = () => {
   const list = document.querySelector('.kp-pages > .kp:not(.kp--clone) .kp-terms')
 
@@ -381,222 +229,8 @@ const renderTermsPreview = () => {
   setHidden(list, shown === 0)
 }
 
-const pageBody = (page) => page.querySelector('.kp-body')
-
-const getFirstKpPage = () => document.querySelector('.kp-pages > .kp:not(.kp--clone)')
-
-const resetKpPages = () => {
-  const first = getFirstKpPage()
-
-  if (!first) {
-    return first
-  }
-
-  const wrap = first.querySelector('.kp-table__wrap')
-  const table = first.querySelector('.kp-table')
-  const body = pageBody(first)
-
-  document.querySelectorAll('.kp--clone').forEach((clone) => {
-    clone.querySelectorAll('.kp-table__entry').forEach((entry) => {
-      wrap?.append(entry)
-    })
-
-    const total = clone.querySelector('.kp-total')
-
-    if (total) {
-      if (first.querySelector('.kp-total')) {
-        total.remove()
-      } else {
-        table?.append(total)
-      }
-    }
-
-    const after = clone.querySelector('.kp-after')
-
-    if (after) {
-      if (first.querySelector('.kp-after')) {
-        after.remove()
-      } else {
-        body?.append(after)
-      }
-    }
-
-    clone.remove()
-  })
-
-  return first
-}
-
-const pageOverflows = (page) => {
-  const body = pageBody(page)
-
-  if (!body) {
-    return false
-  }
-
-  void page.offsetHeight
-
-  return body.scrollHeight > body.clientHeight + 1
-}
-
-const lastMovablePiece = (page) => {
-  const after = page.querySelector('.kp-after')
-
-  if (after && !after.hidden) {
-    const note = after.querySelector('.kp-note')
-    const hasNote = Boolean(note && !note.hidden)
-    const hasTerms = Boolean(after.querySelector('.kp-term'))
-
-    if (hasNote || hasTerms) {
-      return after
-    }
-  }
-
-  const total = page.querySelector('.kp-total')
-
-  if (total) {
-    return total
-  }
-
-  const entries = [...page.querySelectorAll('.kp-table__entry')]
-
-  return entries.at(-1) ?? null
-}
-
-const placePieceOnPage = (page, piece) => {
-  if (piece.classList.contains('kp-table__entry')) {
-    const table = page.querySelector('.kp-table')
-    const wrap = page.querySelector('.kp-table__wrap')
-    const firstEntry = wrap?.querySelector('.kp-table__entry')
-
-    setHidden(table, false)
-
-    if (firstEntry) {
-      wrap.insertBefore(piece, firstEntry)
-    } else {
-      wrap?.append(piece)
-    }
-
-    return
-  }
-
-  if (piece.classList.contains('kp-total')) {
-    const table = page.querySelector('.kp-table')
-    setHidden(table, false)
-    table?.append(piece)
-    return
-  }
-
-  if (piece.classList.contains('kp-after')) {
-    pageBody(page)?.append(piece)
-  }
-}
-
-const makeContinuedPage = (source) => {
-  const page = source.cloneNode(true)
-
-  page.classList.add('kp--clone', 'kp--continued')
-  page.querySelectorAll('.kp-table__entry').forEach((entry) => entry.remove())
-  page.querySelector('.kp-total')?.remove()
-  page.querySelector('.kp-after')?.remove()
-
-  return page
-}
-
-const finishKpPages = () => {
-  const pages = [...document.querySelectorAll('.kp-pages .kp')]
-
-  pages.forEach((page, index) => {
-    const isLast = index === pages.length - 1
-    const table = page.querySelector('.kp-table')
-    const after = page.querySelector('.kp-after')
-    const terms = page.querySelector('.kp-terms')
-    const hasRows = Boolean(page.querySelector('.kp-table__entry'))
-    const hasTotal = Boolean(page.querySelector('.kp-total'))
-    const hasTerms = Boolean(page.querySelector('.kp-term'))
-    const note = page.querySelector('.kp-note')
-    const hasNote = Boolean(note && !note.hidden)
-
-    setHidden(table, page.classList.contains('kp--continued') && !hasRows && !hasTotal)
-    setHidden(terms, !hasTerms)
-    setHidden(after, !hasNote && !hasTerms)
-
-    const sign = page.querySelector('.kp-sign')
-
-    if (sign) {
-      setHidden(
-        sign,
-        !isLast ||
-          !['sign-role', 'sign-name'].some((key) => hasValue(kpData[key]))
-      )
-    }
-  })
-}
-
-const layoutKpPages = () => {
-  const first = resetKpPages()
-
-  if (!first) {
-    return
-  }
-
-  let current = first
-  let guard = 0
-
-  while (guard < 30) {
-    guard += 1
-
-    if (!pageOverflows(current)) {
-      const next = current.nextElementSibling
-
-      if (next?.classList.contains('kp--clone') && pageOverflows(next)) {
-        current = next
-        continue
-      }
-
-      break
-    }
-
-    let next = current.nextElementSibling
-
-    if (!next?.classList.contains('kp--clone')) {
-      next = makeContinuedPage(first)
-      current.after(next)
-    }
-
-    const piece = lastMovablePiece(current)
-
-    if (!piece) {
-      break
-    }
-
-    placePieceOnPage(next, piece)
-
-    const nextPieces = next.querySelectorAll('.kp-table__entry, .kp-total, .kp-after')
-
-    if (pageOverflows(next) && nextPieces.length <= 1) {
-      break
-    }
-  }
-
-  finishKpPages()
-}
-
-let layoutFrame = 0
-
-const scheduleKpLayout = () => {
-  layoutFrame += 1
-  const frame = layoutFrame
-
-  requestAnimationFrame(() => {
-    if (frame === layoutFrame) {
-      layoutKpPages()
-    }
-  })
-}
-
 const renderPreview = () => {
-  resetKpPages()
+  priceTable.resetKpPages()
 
   const title = document.querySelector('.header__title')
 
@@ -653,14 +287,14 @@ const renderPreview = () => {
     )
   )
 
-  renderTablePreview()
+  priceTable.renderTablePreview()
   renderTermsPreview()
-  scheduleKpLayout()
+  priceTable.scheduleKpLayout()
 }
 
 const syncKpData = () => {
   const next = readKpDataFromForm()
-  fillItemSums(next)
+  priceTable.fillItemSums(next)
 
   for (const key of Object.keys(kpData)) {
     if (!(key in next)) {
@@ -671,6 +305,8 @@ const syncKpData = () => {
   Object.assign(kpData, next)
   renderPreview()
 }
+
+priceTable.onSync = syncKpData
 
 const setFieldValue = (name, value) => {
   const field = form.querySelector(`[name="${name}"]`)
@@ -687,29 +323,11 @@ const applyKpData = (data) => {
     setFieldValue(key, data[key] ?? '')
   }
 
-  const itemCount = Number(data['item-count']) || 1
   const termCount = Number(data['term-count']) || 1
 
-  tableRows.replaceChildren()
+  priceTable.applyItemsFrom(data)
+  priceTable.applyAutoTableFrom(data)
   termRows.replaceChildren()
-
-  for (let n = 1; n <= itemCount; n += 1) {
-    const row = createTableRow()
-
-    for (const key of ITEM_KEYS) {
-      if (key === 'item-sum') {
-        continue
-      }
-
-      const input = row.querySelector(`[name="${key}"]`)
-
-      if (input) {
-        input.value = data[`${key}-${n}`] ?? ''
-      }
-    }
-
-    tableRows.append(row)
-  }
 
   for (let n = 1; n <= termCount; n += 1) {
     const row = createTermRow()
@@ -757,7 +375,7 @@ const bindRepeater = (root, addBtn, createItem, rowSelector) => {
   })
 }
 
-bindRepeater(tableRows, document.getElementById('add-row-btn'), createTableRow, '.kp-form__item')
+priceTable.bindAddRow(document.getElementById('add-row-btn'))
 bindRepeater(termRows, document.getElementById('add-term-btn'), createTermRow, '.kp-form__row')
 
 form?.addEventListener('input', (event) => {
@@ -829,6 +447,17 @@ document.getElementById('save-btn')?.addEventListener('click', async () => {
   }
 
   await documentService.UpdateDocument(KP_TYPE, { ...kpData }, id)
+})
+
+document.getElementById('download-btn')?.addEventListener('click', async () => {
+  const id = getQueryParams().get('id')
+
+  if (!id) {
+    new SystemNotifications('error', 'Сначала сохраните документ').CreateNotification()
+    return
+  }
+
+  await new DocumentService().DownloadDocument(id)
 })
 
 const renderInsertPdf = async () => {

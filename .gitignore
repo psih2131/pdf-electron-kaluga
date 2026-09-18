@@ -59,6 +59,9 @@ typings/
 # dotenv environment variables file
 .env
 
+# Google Sheets service account (загружается через настройки, не в репозиторий)
+src/config/credentials.json
+
 # parcel-bundler cache (https://parceljs.org/)
 .cache
 

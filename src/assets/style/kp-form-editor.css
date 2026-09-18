@@ -1,0 +1,181 @@
+/* Редактор КП: .kp-form на страницах offers (не settings, не превью .kp-pages) */
+
+.workspace .kp-form:not(.kp-form--settings) {
+  gap: 14px;
+  width: min(210mm, 100%);
+  padding-bottom: 8px;
+}
+
+/* Toolbar */
+.workspace .kp-form:not(.kp-form--settings) .kp-form__toolbar {
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #13161c;
+  border: 1px solid #272b34;
+}
+
+.workspace .kp-form:not(.kp-form--settings) .kp-form__toolbar .header__btn {
+  height: 34px;
+  padding: 0 12px;
+  font-size: 12px;
+  border-radius: 8px;
+}
+
+/* Карточки секций */
+.workspace .kp-form:not(.kp-form--settings) .kp-form__group:not(.kp-table-block) {
+  gap: 11px;
+  padding: 14px 14px 16px;
+  background: #14171d;
+  border: 1px solid #272b34;
+  border-radius: 11px;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.02) inset;
+}
+
+.workspace .kp-form:not(.kp-form--settings) .kp-form__group.kp-table-block {
+  gap: 12px;
+  padding: 14px 14px 16px;
+  background: #14171d;
+  border: 1px solid #272b34;
+  border-radius: 11px;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.02) inset;
+}
+
+/* Заголовки секций (не header приложения) */
+.workspace .kp-form:not(.kp-form--settings) .kp-form__title {
+  margin: 0;
+  padding-bottom: 9px;
+  border-bottom: 1px solid #2a2f3a;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #8a919e;
+}
+
+/* Поля */
+.workspace .kp-form:not(.kp-form--settings) .kp-form__field {
+  gap: 5px;
+  color: #c5cad3;
+}
+
+.workspace .kp-form:not(.kp-form--settings) .kp-form__field > span:first-child {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #727986;
+}
+
+.workspace .kp-form:not(.kp-form--settings) .kp-form__field input[type='text'],
+.workspace .kp-form:not(.kp-form--settings) .kp-form__field textarea {
+  border: 1px solid #343944;
+  border-radius: 9px;
+  background: #101218;
+  color: #eceef2;
+  font-size: 13px;
+  transition:
+    border-color 0.18s ease,
+    background 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.workspace .kp-form:not(.kp-form--settings) .kp-form__field input[type='text'] {
+  height: 38px;
+  padding: 0 11px;
+}
+
+.workspace .kp-form:not(.kp-form--settings) .kp-form__field input[type='text']::placeholder,
+.workspace .kp-form:not(.kp-form--settings) .kp-form__field textarea::placeholder {
+  color: #555c68;
+}
+
+.workspace .kp-form:not(.kp-form--settings) .kp-form__field input[type='text']:hover,
+.workspace .kp-form:not(.kp-form--settings) .kp-form__field textarea:hover {
+  border-color: #454b58;
+  background: #12141a;
+}
+
+.workspace .kp-form:not(.kp-form--settings) .kp-form__field input[type='text']:focus,
+.workspace .kp-form:not(.kp-form--settings) .kp-form__field textarea:focus {
+  border-color: color-mix(in srgb, var(--green-2) 50%, #454b58);
+  background: #14161c;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--green-3) 14%, transparent);
+  outline: none;
+}
+
+.workspace .kp-form:not(.kp-form--settings) .kp-form__field textarea {
+  min-height: 88px;
+  padding: 10px 11px;
+  line-height: 1.45;
+}
+
+.workspace .kp-form:not(.kp-form--settings) .kp-form__field input[type='file'] {
+  font-size: 12px;
+  color: #9aa0ad;
+}
+
+.workspace .kp-form:not(.kp-form--settings) .kp-form__file-name {
+  font-size: 11px;
+  color: #6d7480;
+  padding-left: 2px;
+}
+
+/* Условия */
+.workspace .kp-form:not(.kp-form--settings) #term-rows.kp-form__rows {
+  gap: 8px;
+  padding: 10px;
+  border-radius: 9px;
+  background: #0f1116;
+  border: 1px solid #252932;
+}
+
+.workspace .kp-form:not(.kp-form--settings) #term-rows .kp-form__row--term {
+  padding: 8px;
+  border-radius: 9px;
+  background: #171920;
+  border: 1px solid transparent;
+  transition: border-color 0.18s ease, background 0.18s ease;
+}
+
+.workspace .kp-form:not(.kp-form--settings) #term-rows .kp-form__row--term:focus-within {
+  border-color: #3d4452;
+  background: #1a1d26;
+}
+
+/* Кнопки в секциях (не таблица — там kp-price-table.css) */
+.workspace .kp-form:not(.kp-form--settings) .kp-form__group:not(.kp-table-block) .kp-form__add {
+  height: 36px;
+  padding: 0 14px;
+  border: 1px solid #3a404c;
+  border-radius: 9px;
+  background: #171920;
+  color: #cdd1d9;
+  font-size: 13px;
+}
+
+.workspace .kp-form:not(.kp-form--settings) .kp-form__group:not(.kp-table-block) .kp-form__add:hover {
+  border-color: #525968;
+  background: #1e212a;
+  color: #fff;
+}
+
+.workspace .kp-form:not(.kp-form--settings) .kp-form__remove {
+  width: 38px;
+  height: 38px;
+  border-radius: 9px;
+  background: #1a1d24;
+  color: #7a808c;
+}
+
+.workspace .kp-form:not(.kp-form--settings) .kp-form__remove:hover {
+  background: #5c3535;
+  color: #fff;
+}
+
+/* Итого */
+.workspace .kp-form:not(.kp-form--settings) .kp-form__group:has([name='total']) .kp-form__field input {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  border-color: color-mix(in srgb, var(--green-3) 35%, #343944);
+  background: #0e1210;
+}

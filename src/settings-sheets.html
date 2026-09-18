@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; img-src 'self' kp-img:; connect-src 'self' https://sheets.googleapis.com"
+    />
+    <meta
+      http-equiv="X-Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; img-src 'self' kp-img:; connect-src 'self' https://sheets.googleapis.com"
+    />
+    <title>Таблица расчёта — Kaluga</title>
+    <link rel="stylesheet" href="assets/style/styles.css" />
+    <link rel="stylesheet" href="assets/style/settings-hub.css" />
+    <link rel="stylesheet" href="assets/style/settings-sheets.css" />
+    <link rel="stylesheet" href="assets/style/notifications.css" />
+    <link rel="stylesheet" href="assets/style/preloader.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="header">
+        <div class="header__left">
+          <a class="header__back" href="settings.html" aria-label="Назад">←</a>
+          <h1 class="header__title">Таблица расчёта</h1>
+        </div>
+      </header>
+
+      <main class="settings-sheets">
+        <div class="settings-sheets__panel">
+          <h2 class="settings-sheets__heading">Подключение Google Таблицы</h2>
+          <p class="settings-sheets__lead">
+            Укажите идентификатор таблицы и имя листа, с которым будет работать расчёт стоимости.
+          </p>
+
+          <form class="settings-sheets__form" action="#" method="get" novalidate>
+            <label class="settings-sheets__field">
+              <span class="settings-sheets__label">Укажите ID Google таблицы</span>
+              <input
+                id="settings-sheets-spreadsheet-id"
+                class="settings-sheets__input"
+                type="text"
+                name="spreadsheet-id"
+                autocomplete="off"
+                spellcheck="false"
+                placeholder="1IEzFSFLXX8qYG-tJj6osxFTruN-YTE1PyzUIBSvdUBw"
+              />
+              <p class="settings-sheets__hint">ID из ссылки: docs.google.com/spreadsheets/d/<strong>…</strong>/edit</p>
+            </label>
+
+            <label class="settings-sheets__field">
+              <span class="settings-sheets__label">Укажите раздел таблицы</span>
+              <input
+                id="settings-sheets-sheet-name"
+                class="settings-sheets__input"
+                type="text"
+                name="sheet-name"
+                autocomplete="off"
+                placeholder="Параметры"
+              />
+              <p class="settings-sheets__hint">Имя вкладки внизу таблицы, как в Google Sheets</p>
+            </label>
+
+            <div class="settings-sheets__form-actions">
+              <button class="settings-sheets__save" id="settings-sheets-save-btn" type="button">
+                Сохранить
+              </button>
+            </div>
+          </form>
+
+          <section class="settings-sheets__credentials" aria-labelledby="settings-sheets-credentials-title">
+            <h3 class="settings-sheets__credentials-title" id="settings-sheets-credentials-title">
+              Ключ Service Account
+            </h3>
+            <p class="settings-sheets__credentials-lead">
+              Загрузите JSON-ключ сервисного аккаунта Google. Файл будет сохранён как
+              <code>config/credentials.json</code>.
+            </p>
+
+            <input
+              id="settings-sheets-credentials-file"
+              class="settings-sheets__credentials-input"
+              type="file"
+              accept=".json,application/json"
+              hidden
+            />
+
+            <div class="settings-sheets__credentials-actions">
+              <button
+                class="settings-sheets__credentials-upload"
+                id="settings-sheets-credentials-upload-btn"
+                type="button"
+              >
+                Загрузить файл
+              </button>
+              <button
+                class="settings-sheets__credentials-delete"
+                id="settings-sheets-credentials-delete-btn"
+                type="button"
+                hidden
+              >
+                Удалить файл
+              </button>
+            </div>
+
+            <div class="settings-sheets__credentials-block" id="settings-sheets-credentials-block" hidden>
+              <p class="settings-sheets__credentials-block-label">Текущий файл</p>
+              <pre class="settings-sheets__credentials-preview" id="settings-sheets-credentials-preview"></pre>
+            </div>
+          </section>
+
+          <div class="settings-sheets__footer">
+            <span class="settings-sheets__footer-label">Проверка</span>
+            <button class="settings-hub__btn" id="settings-sheets-btn" type="button">Запрос данных</button>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script type="module" src="features/ui/settings-sheets.js"></script>
+    <script type="module" src="features/ui/settings-sheets-credentials.js"></script>
+  </body>
+</html>

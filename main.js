@@ -1,10 +1,18 @@
-import { app, BrowserWindow, dialog, ipcMain, protocol } from 'electron'
+import { app, BrowserWindow, dialog, ipcMain, protocol, shell } from 'electron'
 import { watch } from 'node:fs'
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import { randomBytes } from 'node:crypto'
 import { fileURLToPath } from 'node:url'
 import electronUpdater from 'electron-updater'
+import {
+  getSheetData,
+  updateSheetData,
+  updateSheetDeliveryPrices,
+  clearSheetColumnsDAndQ,
+} from './src/features/google-sheets/index.js'
+import { GoogleCredentialsStore } from './src/features/google-sheets/GoogleCredentialsStore.js'
+import { SheetsSettingsStore } from './src/features/google-sheets/SheetsSettingsStore.js'
 
 const { autoUpdater } = electronUpdater
 
@@ -107,6 +115,45 @@ ipcMain.on('print-kp', (event) => {
     printBackground: true,
     pageSize: 'A4'
   })
+})
+
+ipcMain.handle('sheets-get-data', async (_event, range) => {
+  return await getSheetData(range)
+})
+
+ipcMain.handle('sheets-update-cell', async (_event, payload) => {
+  const field = payload?.field ?? 'F7'
+  await updateSheetData(field, payload?.value)
+})
+
+ipcMain.handle('sheets-update-delivery', async (_event, value) => {
+  await updateSheetDeliveryPrices(value)
+})
+
+ipcMain.handle('sheets-clear-dq', async () => {
+  await clearSheetColumnsDAndQ()
+})
+
+ipcMain.handle('sheets-settings-get', async () => {
+  return SheetsSettingsStore.get()
+})
+
+ipcMain.handle('sheets-settings-save', async (_event, payload) => {
+  return SheetsSettingsStore.save(payload)
+})
+
+ipcMain.handle('google-credentials-get', async () => {
+  return GoogleCredentialsStore.getForRenderer()
+})
+
+ipcMain.handle('google-credentials-save', async (_event, jsonText) => {
+  const content = await GoogleCredentialsStore.save(jsonText)
+
+  return { exists: true, content }
+})
+
+ipcMain.handle('google-credentials-delete', async () => {
+  return GoogleCredentialsStore.delete()
 })
 
 ipcMain.handle('save-pdf', async (event, id) => {
@@ -269,6 +316,12 @@ const createWindow = () => {
 
   win.setMenuBarVisibility(false)
   win.setTitle('Kaluga')
+
+  win.webContents.setWindowOpenHandler(({ url }) => {
+    shell.openExternal(url)
+    return { action: 'deny' }
+  })
+
   win.loadFile('src/index.html')
 }
 
@@ -315,7 +368,7 @@ const watchDevFiles = () => {
   watch(path.join(__dirname, 'preload.cjs'), () => onChange('preload.cjs'))
 }
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
   protocol.handle('kp-img', async (request) => {
     try {
       const { pathname } = new URL(request.url)
@@ -355,6 +408,8 @@ app.whenReady().then(() => {
   createWindow()
   setupAutoUpdater()
   watchDevFiles()
+
+  
 })
 
 app.on('window-all-closed', () => {

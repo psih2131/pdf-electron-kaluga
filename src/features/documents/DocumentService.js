@@ -1,16 +1,19 @@
 import {KpDatabase} from '../../backend/db.js'
 import SystemNotifications from '../notifications/SystemNotifications.js'
+import DocumentTrash from '../../features/documents/DocumentTrash.js'
 
 class DocumentService {
     constructor() {
         this.db = new KpDatabase( '', {} )
     }
 
-    async AddDocument(type, data) {
+    async AddDocument(type, data, notify = true) {
         const db = new KpDatabase(type, data)
         const id = await db.add()
 
-        new SystemNotifications('success', 'Документ успешно добавлен').CreateNotification()
+        if (notify) {
+            new SystemNotifications('success', 'Документ успешно добавлен').CreateNotification()
+        }
 
         await this.SavePdfDocument(id)
 
@@ -18,7 +21,9 @@ class DocumentService {
     }
 
     async GetDocument(id) {
-        return this.db.get(id)
+        const document = await this.db.get(id)
+        console.log('получаем документ', document)
+        return document
     }
 
     async UpdateDocument(type, data, id) {
@@ -65,10 +70,16 @@ class DocumentService {
     }
 
     async DeleteDocument(id) {
+        const documentKp = await this.GetDocument(id)
+        const trash = new DocumentTrash()
+
+        await trash.AddDocument(documentKp.type, documentKp.data)
+        
+        
         console.log( 'Удаляем документ', id)
         const result = await this.db.delete(id)
         console.log( 'Результат удаления', result)
-        const deleteNotification = new SystemNotifications('success', 'Документ удален')
+        const deleteNotification = new SystemNotifications('success', 'Документ перемещен в корзину')
         await this.DeletePdfDocument(id)
         deleteNotification.CreateNotification()
     }

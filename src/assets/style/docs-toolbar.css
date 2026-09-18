@@ -1,0 +1,142 @@
+.home {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: #0e1015;
+}
+
+.docs-toolbar {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 24px 0;
+}
+
+.docs-toolbar__filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.docs-toolbar__filter {
+  height: 32px;
+  padding: 0 12px;
+  border: 1px solid #2a2d36;
+  border-radius: 8px;
+  background: #1c1e26;
+  color: #8b8f9a;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.docs-toolbar__filter:hover {
+  border-color: #404656;
+  color: #c9cdd6;
+}
+
+.docs-toolbar__filter.is-active {
+  border-color: var(--filter-accent, var(--green-3));
+  background: color-mix(in srgb, var(--filter-accent, var(--green-3)) 18%, #1c1e26);
+  color: #fff;
+}
+
+.docs-toolbar__filter.is-active:not([style]) {
+  border-color: var(--green-3);
+  background: color-mix(in srgb, var(--green-3) 18%, #1c1e26);
+}
+
+.docs-toolbar__sort {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.docs-toolbar__sort-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #8b8f9a;
+  white-space: nowrap;
+}
+
+.docs-toolbar__select-wrap {
+  position: relative;
+}
+
+.docs-toolbar__select-wrap::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  width: 8px;
+  height: 8px;
+  border-right: 1.5px solid #8b8f9a;
+  border-bottom: 1.5px solid #8b8f9a;
+  transform: translateY(-65%) rotate(45deg);
+  pointer-events: none;
+}
+
+.docs-toolbar__sort-select {
+  appearance: none;
+  height: 32px;
+  min-width: 168px;
+  padding: 0 32px 0 12px;
+  border: 1px solid #2a2d36;
+  border-radius: 8px;
+  background: #1c1e26;
+  color: #e8eaed;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.docs-toolbar__sort-select:hover {
+  border-color: #404656;
+}
+
+.docs-toolbar__sort-select:focus {
+  outline: none;
+  border-color: var(--green-3);
+}
+
+.docs-toolbar__sort-select option {
+  background: #1c1e26;
+  color: #e8eaed;
+}
+
+.home .docs {
+  flex: 1;
+  min-height: 0;
+}
+
+.docs > .card[hidden] {
+  display: none !important;
+}
+
+@media (max-width: 720px) {
+  .docs-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .docs-toolbar__sort {
+    justify-content: space-between;
+  }
+
+  .docs-toolbar__sort-select {
+    min-width: 0;
+    flex: 1;
+  }
+}

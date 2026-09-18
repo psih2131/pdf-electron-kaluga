@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; img-src 'self' kp-img:"
+    />
+    <meta
+      http-equiv="X-Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; img-src 'self' kp-img:"
+    />
+    <title>Автонаполнение — Kaluga</title>
+    <link rel="stylesheet" href="assets/style/styles.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="header">
+        <div class="header__left">
+          <a class="header__back" href="settings.html" aria-label="Назад">←</a>
+          <h1 class="header__title">Автонаполнение</h1>
+        </div>
+        <div class="header__right">
+          <button class="header__btn header__btn--save" id="save-defaults-btn" type="button">
+            <svg viewBox="0 0 16 16" aria-hidden="true">
+              <path
+                fill="currentColor"
+                d="M3 1.5h8.2L14.5 4.8V13a1.5 1.5 0 0 1-1.5 1.5H3A1.5 1.5 0 0 1 1.5 13V3A1.5 1.5 0 0 1 3 1.5Zm1.2 1.2v3.6h6.4V2.7H4.2Zm0 5.4V13h7.6V8.1H4.2Z"
+              />
+            </svg>
+            <span class="header__btn-text">Сохранить</span>
+          </button>
+        </div>
+      </header>
+
+      <main class="workspace">
+        <section class="kp-form kp-form--settings">
+          <p class="kp-form__hint">Базовые значения для шаблона ККС_КП-1. Название КП и таблица товара сюда не входят.</p>
+
+          <div class="kp-form__group">
+            <h2 class="kp-form__title">Реквизиты</h2>
+            <label class="kp-form__field">
+              <span>Компания</span>
+              <input type="text" name="company" />
+            </label>
+            <label class="kp-form__field">
+              <span>ИНН / КПП</span>
+              <input type="text" name="inn-kpp" />
+            </label>
+            <label class="kp-form__field">
+              <span>ОКПО / ОГРН</span>
+              <input type="text" name="okpo-ogrn" />
+            </label>
+            <label class="kp-form__field">
+              <span>Адрес</span>
+              <input type="text" name="address" />
+            </label>
+          </div>
+
+          <div class="kp-form__group">
+            <h2 class="kp-form__title">Контакты</h2>
+            <label class="kp-form__field">
+              <span>Телефон</span>
+              <input type="text" name="phone" />
+            </label>
+            <label class="kp-form__field">
+              <span>Email</span>
+              <input type="text" name="email" />
+            </label>
+          </div>
+
+          <div class="kp-form__group">
+            <h2 class="kp-form__title">Товар</h2>
+            <label class="kp-form__field">
+              <span>Название</span>
+              <input type="text" name="product-title" />
+            </label>
+            <label class="kp-form__field">
+              <span>Подзаголовок</span>
+              <input type="text" name="product-sub" />
+            </label>
+          </div>
+
+          <div class="kp-form__group">
+            <h2 class="kp-form__title">Менеджер</h2>
+            <label class="kp-form__field">
+              <span>Имя</span>
+              <input type="text" name="manager-name" />
+            </label>
+            <label class="kp-form__field">
+              <span>Фото</span>
+              <input type="file" name="manager-photo" accept="image/*" />
+              <span class="kp-form__file-name" data-file-name="manager-photo"></span>
+            </label>
+          </div>
+
+          <div class="kp-form__group">
+            <h2 class="kp-form__title">Документ</h2>
+            <label class="kp-form__field">
+              <span>Номер</span>
+              <input type="text" name="doc-number" />
+            </label>
+            <label class="kp-form__field">
+              <span>Дата</span>
+              <input type="text" name="doc-date" />
+            </label>
+            <label class="kp-form__field">
+              <span>Клиент</span>
+              <input type="text" name="doc-client" />
+            </label>
+          </div>
+
+          <div class="kp-form__group">
+            <h2 class="kp-form__title">Примечание</h2>
+            <label class="kp-form__field">
+              <span>Текст</span>
+              <textarea name="note"></textarea>
+            </label>
+          </div>
+
+          <div class="kp-form__group">
+            <h2 class="kp-form__title">Условия</h2>
+            <div class="kp-form__rows" id="term-rows">
+              <div class="kp-form__row kp-form__row--term">
+                <label class="kp-form__field">
+                  <span>Название</span>
+                  <input type="text" name="term-label" />
+                </label>
+                <label class="kp-form__field">
+                  <span>Значение</span>
+                  <input type="text" name="term-value" />
+                </label>
+                <button class="kp-form__remove" type="button" aria-label="Удалить строку">×</button>
+              </div>
+            </div>
+            <button class="kp-form__add" id="add-term-btn" type="button">Добавить поле</button>
+          </div>
+
+          <div class="kp-form__group">
+            <h2 class="kp-form__title">Подвал</h2>
+            <label class="kp-form__field">
+              <span>Отдел продаж</span>
+              <input type="text" name="footer-banner" />
+            </label>
+            <label class="kp-form__field">
+              <span>Тел/факс</span>
+              <input type="text" name="footer-phone" />
+            </label>
+            <label class="kp-form__field">
+              <span>Почта и сайт</span>
+              <input type="text" name="footer-contacts" />
+            </label>
+            <label class="kp-form__field">
+              <span>Должность</span>
+              <input type="text" name="sign-role" />
+            </label>
+            <label class="kp-form__field">
+              <span>ФИО</span>
+              <input type="text" name="sign-name" />
+            </label>
+          </div>
+        </section>
+      </main>
+    </div>
+    <script type="module" src="features/ui/settings.js"></script>
+  </body>
+</html>

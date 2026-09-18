@@ -13,15 +13,33 @@
     <title>Kaluga</title>
     <link rel="stylesheet" href="assets/style/styles.css" />
     <link rel="stylesheet" href="assets/style/notifications.css" />
+    <link rel="stylesheet" href="assets/style/trash.css" />
+    <link rel="stylesheet" href="assets/style/docs-toolbar.css" />
   </head>
   <body>
     <div class="app">
       <header class="header">
-        <h1 class="header__title">Kaluga v1.0.9</h1>
+        <div class="header__left">
+          <h1 class="header__title">KKS Proposal v1.0.9</h1>
+          <div class="header__developer">
+            <span class="header__developer-label">Разработчик программы:</span>
+            <a
+              class="header__developer-link"
+              href="https://kuzmich-agency.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Kuzmich Agency
+            </a>
+          </div>
+        </div>
         <div class="header__right">
-          <p class="header__count">0 документов</p>
-          <a class="header__icon" href="settings.html" aria-label="Настройки">
-            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <div class="header__count" aria-live="polite">
+            <span class="header__count-value">0</span>
+            <span class="header__count-label">документов</span>
+          </div>
+          <a class="header__settings" href="settings.html" aria-label="Настройки">
+            <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
               <path
                 fill="currentColor"
                 d="M19.14 12.94c.04-.31.06-.63.06-.94s-.02-.63-.06-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.6-.22l-2.39.96a7.07 7.07 0 0 0-1.63-.94l-.36-2.54A.5.5 0 0 0 13.9 2h-3.8a.5.5 0 0 0-.49.42l-.36 2.54c-.59.24-1.13.55-1.63.94l-2.39-.96a.5.5 0 0 0-.6.22L2.71 8.48a.5.5 0 0 0 .12.64l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94L2.83 14.16a.5.5 0 0 0-.12.64l1.92 3.32c.13.23.4.32.64.22l2.39-.96c.5.39 1.04.7 1.63.94l.36 2.54c.05.24.25.42.49.42h3.8c.24 0 .44-.18.49-.42l.36-2.54c.59-.24 1.13-.55 1.63-.94l2.39.96c.24.1.51 0 .64-.22l1.92-3.32a.5.5 0 0 0-.12-.64l-2.03-1.58ZM12 15.5A3.5 3.5 0 1 1 12 8.5a3.5 3.5 0 0 1 0 7Z"
@@ -31,10 +49,31 @@
         </div>
       </header>
 
-      <main class="docs">
-        <button class="card card--create" id="create-btn" type="button">
-          <span class="card__plus">+</span>
-        </button>
+      <main class="home">
+        <div class="docs-toolbar" aria-label="Фильтры и сортировка документов">
+          <div
+            class="docs-toolbar__filters"
+            id="docs-toolbar-filters"
+            role="tablist"
+            aria-label="Тип документа"
+          ></div>
+          <div class="docs-toolbar__sort">
+            <label class="docs-toolbar__sort-label" for="docs-sort-select">Сортировка</label>
+            <div class="docs-toolbar__select-wrap">
+              <select class="docs-toolbar__sort-select" id="docs-sort-select">
+                <option value="default">По умолчанию</option>
+                <option value="oldest">Сначала старые</option>
+                <option value="newest">Сначала новые</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="docs">
+          <button class="card card--create" id="create-btn" type="button">
+            <span class="card__plus">+</span>
+          </button>
+        </div>
       </main>
     </div>
 
@@ -63,6 +102,55 @@
             <span class="template__name">ККС_КП-1</span>
           </button>
         </div>
+      </div>
+    </div>
+
+    <button class="deleted-bin" type="button" aria-label="Удалённые файлы">
+      <span class="deleted-bin__icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="24" height="24">
+          <path
+            fill="currentColor"
+            d="M7 4C7 2.9 7.9 2 9 2h6c1.1 0 2 .9 2 2v2h3c.6 0 1 .4 1 1s-.4 1-1 1h-1.1L18.1 20c-.1 1-1 1.9-2.1 1.9H7.9c-1.1 0-2-.9-2.1-1.9L4.1 8H3c-.6 0-1-.4-1-1s.4-1 1-1h3V4Zm2 2h6V4H9v2ZM6.1 8l.9 12h10l.9-12H6.1Z"
+          />
+        </svg>
+      </span>
+      <span class="deleted-bin__label">Удалённые</span>
+      <span class="deleted-bin__count">3</span>
+    </button>
+
+    <div class="trash-modal" id="trash-modal" hidden>
+      <div class="trash-modal__backdrop" data-close-trash></div>
+      <div
+        class="trash-modal__dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="trash-modal-title"
+      >
+        <header class="trash-modal__header">
+          <div class="trash-modal__heading">
+            <h2 class="trash-modal__title" id="trash-modal-title">Корзина</h2>
+            <p class="trash-modal__subtitle">3 удалённых документа</p>
+          </div>
+          <button class="trash-modal__close" type="button" data-close-trash aria-label="Закрыть">
+            ×
+          </button>
+        </header>
+
+        <div class="trash-modal__body">
+          <div class="trash-modal__list">
+            
+
+          </div>
+        </div>
+
+        <footer class="trash-modal__footer">
+          <button class="trash-modal__btn trash-modal__btn--primary" id="trash-restore-all-btn" type="button">
+            Восстановить все
+          </button>
+          <button class="trash-modal__btn trash-modal__btn--danger" id="trash-delete-all-btn" type="button">
+            Удалить все
+          </button>
+        </footer>
       </div>
     </div>
 

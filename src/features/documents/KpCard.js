@@ -68,6 +68,10 @@ class KpCard {
             </div>
             <h2 class="card__name"></h2>
         `
+        card.dataset.kpType = String(this.record.type ?? '')
+        card.dataset.createdAt = String(this.record.createdAt ?? 0)
+        card.dataset.updatedAt = String(this.record.updatedAt ?? 0)
+
         card.querySelector('.card__name').textContent = this.#getKpName(this.record)
         card.querySelector('.card__download-btn').addEventListener('click', () => this.onDownload(this.record.id))
         card.querySelector('.card__copy-btn').addEventListener('click', () => this.onCopy(this.record.id))

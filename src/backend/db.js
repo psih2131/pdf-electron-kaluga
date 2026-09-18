@@ -1,7 +1,17 @@
 const DB_NAME = 'kaluga'
-const DB_VERSION = 3
+const DB_VERSION = 5
 const STORE_NAME = 'kps'
+const TRASH_STORE_NAME = 'kps_trash'
 const DEFAULTS_STORE = 'defaults'
+const SHEETS_SETTINGS_STORE = 'sheets_settings'
+const SHEETS_SETTINGS_ID = 'google-sheets-tab'
+
+const createKpStore = (db, storeName) => {
+  if (!db.objectStoreNames.contains(storeName)) {
+    const store = db.createObjectStore(storeName, { keyPath: 'id' })
+    store.createIndex('type', 'type', { unique: false })
+  }
+}
 
 const openDatabase = () => {
   return new Promise((resolve, reject) => {
@@ -10,13 +20,15 @@ const openDatabase = () => {
     request.onupgradeneeded = () => {
       const db = request.result
 
-      if (!db.objectStoreNames.contains(STORE_NAME)) {
-        const store = db.createObjectStore(STORE_NAME, { keyPath: 'id' })
-        store.createIndex('type', 'type', { unique: false })
-      }
+      createKpStore(db, STORE_NAME)
+      createKpStore(db, TRASH_STORE_NAME)
 
       if (!db.objectStoreNames.contains(DEFAULTS_STORE)) {
         db.createObjectStore(DEFAULTS_STORE, { keyPath: 'type' })
+      }
+
+      if (!db.objectStoreNames.contains(SHEETS_SETTINGS_STORE)) {
+        db.createObjectStore(SHEETS_SETTINGS_STORE, { keyPath: 'id' })
       }
     }
 
@@ -118,6 +130,48 @@ export class KpDatabase {
 
 }
 
+export class KpTrashTable {
+  constructor(type, data = {}) {
+    this.type = type
+    this.data = data
+  }
+
+  async add(type, data) {
+    const record = {
+      id: crypto.randomUUID(),
+      type: type,
+      data: { ...data },
+      createdAt: Date.now(),
+      updatedAt: Date.now()
+    }
+
+    await runStore(TRASH_STORE_NAME, 'readwrite', (store) => store.add(record))
+    return record.id
+  }
+
+
+  async getAll() {
+    const records = await runStore(TRASH_STORE_NAME, 'readonly', (store) => store.getAll())
+    return records ?? []
+  }
+
+  async get(id) {
+    return runStore(TRASH_STORE_NAME, 'readonly', (store) => store.get(id))
+  }
+
+  async deleteAll() {
+    const records = await runStore(TRASH_STORE_NAME, 'readwrite', (store) => store.clear())
+    return records ?? []
+  }
+
+  async delete(id) {
+    const result = await runStore(TRASH_STORE_NAME, 'readwrite', (store) => store.delete(id))
+    return result
+  }
+
+
+}
+
 export class KpDefaults {
   constructor(type, data = {}) {
     this.type = type
@@ -137,5 +191,28 @@ export class KpDefaults {
 
     await runStore(DEFAULTS_STORE, 'readwrite', (store) => store.put(record))
     return this.type
+  }
+}
+
+export class SheetsSettings {
+  constructor(data = {}) {
+    this.spreadsheetId = String(data.spreadsheetId ?? '').trim()
+    this.sheetName = String(data.sheetName ?? '').trim()
+  }
+
+  async get() {
+    return runStore(SHEETS_SETTINGS_STORE, 'readonly', (store) => store.get(SHEETS_SETTINGS_ID))
+  }
+
+  async save() {
+    const record = {
+      id: SHEETS_SETTINGS_ID,
+      spreadsheetId: this.spreadsheetId,
+      sheetName: this.sheetName,
+      updatedAt: Date.now()
+    }
+
+    await runStore(SHEETS_SETTINGS_STORE, 'readwrite', (store) => store.put(record))
+    return record
   }
 }
