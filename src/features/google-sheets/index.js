@@ -28,7 +28,7 @@ async function initGoogleSheets() {
 
 
 
-async function getSheetData(range = 'D7:Q7') {
+async function getSheetData(range = 'D7:R7') {
   
   const { googleSheets, spreadsheetId, sheetName } = await initGoogleSheets()
 

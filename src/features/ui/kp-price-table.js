@@ -17,6 +17,9 @@ export const AUTO_ITEM_KEYS_ROW = [
   'auto-item-qty',
   'auto-item-price',
   'auto-item-sum',
+  'auto-item-pricelist',
+  'auto-item-margin',
+  'auto-item-tech',
 ]
 
 export const AUTO_EDIT_KEYS = [
@@ -33,17 +36,37 @@ export const isAutoTableKey = (key) =>
   key === 'autoCount' ||
   key === 'auto-item-count' ||
   key === 'auto-total' ||
+  key === 'auto-profitability' ||
+  key === 'auto-net-profit' ||
+  key === 'auto-order-mass' ||
   key === 'auto-delivery-cost' ||
   key.startsWith('auto-item-') ||
   key.startsWith('auto-edit-')
 
 export const hasValue = (value) => String(value ?? '').trim() !== ''
 
+const formatAutoOrderMassDisplay = (value) => {
+  const text = String(value ?? '').trim()
+
+  if (!hasValue(text)) {
+    return '—'
+  }
+
+  if (/\s*кг\.?\s*$/i.test(text)) {
+    return text
+  }
+
+  return `${text} кг`
+}
+
 /** @param {Record<string, unknown>} data @param {number} [itemCount] */
 export const seedEmptyAutoTableData = (data, itemCount = 1) => {
   data.autoCount = false
   data['auto-item-count'] = itemCount
   data['auto-total'] = ''
+  data['auto-profitability'] = ''
+  data['auto-net-profit'] = ''
+  data['auto-order-mass'] = ''
   data['auto-delivery-cost'] = ''
 
   for (let n = 1; n <= itemCount; n += 1) {
@@ -97,7 +120,7 @@ export const validateAutoTableRowsFilled = (items) => {
 
 /**
  * @param {Element} item `.kp-form__auto-item`
- * @param {string[]} rowValues строка из Google Sheets (D…Q)
+ * @param {string[]} rowValues строка из Google Sheets (D…R)
  */
 export const fillAutoReadonlyRowFromSheet = (item, rowValues) => {
   if (!item || !rowValues?.length) {
@@ -117,8 +140,11 @@ export const fillAutoReadonlyRowFromSheet = (item, rowValues) => {
   set('[data-auto-out-name]', pick(0))
   set('[data-auto-out-unit]', pick(1))
   set('[data-auto-out-qty]', pick(2))
-  set('[data-auto-out-price]', pick(4))
-  set('[data-auto-out-sum]', pick(5))
+  set('[data-auto-out-price]', pick(11))
+  set('[data-auto-out-sum]', pick(12))
+  set('[data-auto-out-pricelist]', pick(4))
+  set('[data-auto-out-margin]', pick(9))
+  set('[data-auto-out-tech]', pick(14))
 }
 
 /** @param {NodeListOf<Element> | Element[]} items @param {string[][]} sheetValues */
@@ -173,6 +199,13 @@ const setHidden = (node, hidden) => {
   if (node) {
     node.hidden = hidden
   }
+}
+
+/** @param {{ raw?: { values?: unknown[][] } } | null | undefined} response */
+const firstSheetCellText = (response) => {
+  const cell = response?.raw?.values?.[0]?.[0]
+
+  return cell != null ? String(cell).trim() : ''
 }
 
 const pageBody = (page) => page.querySelector('.kp-body')
@@ -299,6 +332,20 @@ export class KpPriceTable {
       </label>
       <button class="kp-form__remove" type="button" aria-label="Удалить строку">×</button>
     </div>
+    <div class="kp-form__row kp-form__row--readonly kp-form__row--readonly-meta">
+      <label class="kp-form__field">
+        <span>Стоимость по прайсу</span>
+        <span class="kp-form__readonly" data-auto-out-pricelist>—</span>
+      </label>
+      <label class="kp-form__field">
+        <span>Маржа</span>
+        <span class="kp-form__readonly" data-auto-out-margin>—</span>
+      </label>
+      <label class="kp-form__field kp-form__field--wide">
+        <span>Тех. пол</span>
+        <span class="kp-form__readonly" data-auto-out-tech>—</span>
+      </label>
+    </div>
     <div class="kp-form__auto-editor">
       <label class="kp-form__field">
         <span>Наименование товара</span>
@@ -415,7 +462,7 @@ export class KpPriceTable {
         await window.kaluga.clearSheetColumnsDAndQ()
         console.log('Очистка столбцов D, F, J, Q (7–36) и G42')
 
-        
+        // Заполнение столбцов D, F, J, Q
         for (let i = 0; i < items.length; i += 1) {
           const item = items[i]
           const sheetRow = String(START_ROW + i)
@@ -444,22 +491,50 @@ export class KpPriceTable {
           await window.kaluga.updateSheetDeliveryPrices(deliveryCost)
         }
 
-        const googleGetData = await window.kaluga.getSheetData(`D${START_ROW}:Q${END_ROW}`)
+        const googleGetData = await window.kaluga.getSheetData(`D${START_ROW}:R${END_ROW}`)
         console.log('Получение данных из Google Sheets для колонок', googleGetData)
 
 
-        const totalSum = await window.kaluga.getSheetData(`I37:I38`)
-        console.log('Получение общей стоимости из колонки I37:I38', totalSum)
+        const totalSumResponse = await window.kaluga.getSheetData('P37:P38')
+        console.log('Получение общей стоимости из колонки P37:P38', totalSumResponse)
+
+        const profitabilityResponse = await window.kaluga.getSheetData('G46:G46')
+        console.log('Получение рентабельности из колонки G46', profitabilityResponse)
+
+        const netProfitResponse = await window.kaluga.getSheetData('G47:G47')
+        console.log('Получение чистой прибыли из колонки G47', netProfitResponse)
+
+        const orderMassResponse = await window.kaluga.getSheetData('G41:G41')
+        console.log('Получение общей массы из колонки G41', orderMassResponse)
 
         const sheetRows = googleGetData?.raw?.values ?? []
         fillAutoReadonlyRowsFromSheet(items, sheetRows)
 
-        const totalCell = totalSum?.raw?.values?.[0]?.[0]
+        const totalText = firstSheetCellText(totalSumResponse)
 
-        if (totalCell != null) {
-          this.kpData['auto-total'] = String(totalCell).trim()
+        if (totalText) {
+          this.kpData['auto-total'] = totalText
         }
 
+        const profitabilityText = firstSheetCellText(profitabilityResponse)
+
+        if (profitabilityText) {
+          this.kpData['auto-profitability'] = profitabilityText
+        }
+
+        const netProfitText = firstSheetCellText(netProfitResponse)
+
+        if (netProfitText) {
+          this.kpData['auto-net-profit'] = netProfitText
+        }
+
+        const orderMassText = firstSheetCellText(orderMassResponse)
+
+        if (orderMassText) {
+          this.kpData['auto-order-mass'] = orderMassText
+        }
+
+        this.#syncAutoSummaryDisplay()
         this.readAutoTableInto(this.kpData)
         this.onSync()
 
@@ -539,6 +614,35 @@ export class KpPriceTable {
     return block?.querySelector('[name="auto-delivery-cost"]')?.value?.trim() ?? ''
   }
 
+  #syncAutoSummaryDisplay() {
+    const block = this.tableRows?.closest('.kp-table-block')
+
+    if (!block) {
+      return
+    }
+
+    const pairs = [
+      ['[data-auto-out-total]', 'auto-total'],
+      ['[data-auto-out-profitability]', 'auto-profitability'],
+      ['[data-auto-out-net-profit]', 'auto-net-profit'],
+      ['[data-auto-out-order-mass]', 'auto-order-mass'],
+    ]
+
+    for (const [selector, dataKey] of pairs) {
+      const node = block.querySelector(selector)
+      const text = String(this.kpData[dataKey] ?? '').trim()
+
+      if (node) {
+        node.textContent =
+          dataKey === 'auto-order-mass'
+            ? formatAutoOrderMassDisplay(text)
+            : hasValue(text)
+              ? text
+              : '—'
+      }
+    }
+  }
+
   readAutoTableInto(data) {
     const items = this.autoTableRows?.querySelectorAll(':scope > .kp-form__auto-item') ?? []
     const deliveryCost = this.#readAutoDeliveryCost()
@@ -549,6 +653,9 @@ export class KpPriceTable {
     this.kpData['auto-delivery-cost'] = deliveryCost
 
     data['auto-total'] = this.kpData['auto-total'] ?? ''
+    data['auto-profitability'] = this.kpData['auto-profitability'] ?? ''
+    data['auto-net-profit'] = this.kpData['auto-net-profit'] ?? ''
+    data['auto-order-mass'] = this.kpData['auto-order-mass'] ?? ''
 
     items.forEach((item, index) => {
       const n = index + 1
@@ -558,6 +665,9 @@ export class KpPriceTable {
       data[`auto-item-qty-${n}`] = readonlyDisplayText(item, '[data-auto-out-qty]')
       data[`auto-item-price-${n}`] = readonlyDisplayText(item, '[data-auto-out-price]')
       data[`auto-item-sum-${n}`] = readonlyDisplayText(item, '[data-auto-out-sum]')
+      data[`auto-item-pricelist-${n}`] = readonlyDisplayText(item, '[data-auto-out-pricelist]')
+      data[`auto-item-margin-${n}`] = readonlyDisplayText(item, '[data-auto-out-margin]')
+      data[`auto-item-tech-${n}`] = readonlyDisplayText(item, '[data-auto-out-tech]')
 
       data[`auto-edit-title-${n}`] = item.querySelector('[name="auto-item-title"]')?.value ?? ''
       data[`auto-edit-qty-${n}`] = item.querySelector('[name="auto-item-qty"]')?.value ?? ''
@@ -581,6 +691,9 @@ export class KpPriceTable {
       setReadonlyDisplay(row, '[data-auto-out-qty]', data[`auto-item-qty-${n}`])
       setReadonlyDisplay(row, '[data-auto-out-price]', data[`auto-item-price-${n}`])
       setReadonlyDisplay(row, '[data-auto-out-sum]', data[`auto-item-sum-${n}`])
+      setReadonlyDisplay(row, '[data-auto-out-pricelist]', data[`auto-item-pricelist-${n}`])
+      setReadonlyDisplay(row, '[data-auto-out-margin]', data[`auto-item-margin-${n}`])
+      setReadonlyDisplay(row, '[data-auto-out-tech]', data[`auto-item-tech-${n}`])
 
       const title = row.querySelector('[name="auto-item-title"]')
       const qty = row.querySelector('[name="auto-item-qty"]')
@@ -616,6 +729,10 @@ export class KpPriceTable {
 
     this.kpData['auto-delivery-cost'] = deliveryValue
     this.kpData['auto-total'] = data['auto-total'] ?? ''
+    this.kpData['auto-profitability'] = data['auto-profitability'] ?? ''
+    this.kpData['auto-net-profit'] = data['auto-net-profit'] ?? ''
+    this.kpData['auto-order-mass'] = data['auto-order-mass'] ?? ''
+    this.#syncAutoSummaryDisplay()
 
     if (!this.#tableModeReady) {
       this.#initTableModeUI()

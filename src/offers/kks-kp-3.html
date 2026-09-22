@@ -211,6 +211,27 @@
                     autocomplete="off"
                   />
                 </label>
+                <section class="kp-table-auto-summary" aria-live="polite">
+                  <h3 class="kp-table-auto-summary__title">Итоги расчёта</h3>
+                  <dl class="kp-table-auto-summary__list">
+                    <div class="kp-table-auto-summary__row kp-table-auto-summary__row--main">
+                      <dt>Итоговая стоимость</dt>
+                      <dd data-auto-out-total>—</dd>
+                    </div>
+                    <div class="kp-table-auto-summary__row">
+                      <dt>Рентабельность</dt>
+                      <dd data-auto-out-profitability>—</dd>
+                    </div>
+                    <div class="kp-table-auto-summary__row">
+                      <dt>Чистая прибыль</dt>
+                      <dd data-auto-out-net-profit>—</dd>
+                    </div>
+                    <div class="kp-table-auto-summary__row">
+                      <dt>Общая масса заказа</dt>
+                      <dd data-auto-out-order-mass>—</dd>
+                    </div>
+                  </dl>
+                </section>
                 <div class="kp-table-auto-actions">
                   <button class="kp-form__add" id="add-auto-row-btn" type="button">Добавить поле</button>
                   <button class="kp-form__auto-run" id="auto-calc-run-btn" type="button">
