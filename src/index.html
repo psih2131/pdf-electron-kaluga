@@ -15,8 +15,40 @@
     <link rel="stylesheet" href="assets/style/notifications.css" />
     <link rel="stylesheet" href="assets/style/trash.css" />
     <link rel="stylesheet" href="assets/style/docs-toolbar.css" />
+    <link rel="stylesheet" href="assets/style/contact-modal.css" />
   </head>
   <body>
+    <!-- Временный попап: контакты (на Kwork сразу банят за контакты) -->
+    <div class="contact-modal" id="contact-modal" role="dialog" aria-modal="true" aria-labelledby="contact-modal-title">
+      <div class="contact-modal__backdrop" data-close-contact></div>
+      <div class="contact-modal__dialog">
+        <button class="contact-modal__close" type="button" data-close-contact aria-label="Закрыть">
+          ×
+        </button>
+        <div class="contact-modal__content">
+          <p class="contact-modal__eyebrow">Сообщение от разработчика</p>
+          <h2 class="contact-modal__title" id="contact-modal-title">
+            Для более комфортной работы, коммуникации и связи по будущим обновлениям программы напишите мне в Telegram
+          </h2>
+          <p class="contact-modal__text">
+            На Kwork нельзя сразу указать контакты — за это дают бан.
+            Удобнее связаться напрямую:
+          </p>
+          <a
+            class="contact-modal__link"
+            href="https://t.me/roman_dev_space"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            https://t.me/roman_dev_space
+          </a>
+          <button class="contact-modal__btn" type="button" data-close-contact>
+            Понятно, закрыть
+          </button>
+        </div>
+      </div>
+    </div>
+
     <div class="app">
       <header class="header">
         <div class="header__left">

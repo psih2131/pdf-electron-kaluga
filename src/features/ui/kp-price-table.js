@@ -475,7 +475,7 @@ export class KpPriceTable {
           await window.kaluga.updateSheetData({ field: `F${sheetRow}`, value: qty })
 
           if (discount) {
-            await window.kaluga.updateSheetData({ field: `J${sheetRow}`, value: discount })
+            await window.kaluga.updateSheetData({ field: `J${sheetRow}`, value: discount + '%' })
           }
 
           if (article) {

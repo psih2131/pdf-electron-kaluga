@@ -10,9 +10,28 @@ import DocsListControls from './features/ui/DocsListControls.js'
 
 const createBtn = document.getElementById('create-btn')
 const modal = document.getElementById('template-modal')
+const contactModal = document.getElementById('contact-modal')
 const docs = document.querySelector('.docs')
 const countValue = document.querySelector('.header__count-value')
 const countLabel = document.querySelector('.header__count-label')
+
+const closeContactModal = () => {
+  if (contactModal) {
+    contactModal.hidden = true
+  }
+}
+
+contactModal?.addEventListener('click', (event) => {
+  if (event.target.closest('[data-close-contact]')) {
+    closeContactModal()
+  }
+})
+
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && contactModal && !contactModal.hidden) {
+    closeContactModal()
+  }
+})
 
 const docsListControls = new DocsListControls({
   filtersContainer: document.getElementById('docs-toolbar-filters'),
